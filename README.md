@@ -17,9 +17,12 @@ Deployment: Vercel (Frontend) / Heroku / Railway (Backend & Database)
 
 ---
 
-##🤵 Team Member
+## 🤵 Team Member
 
 Muhammad Rizki muda | 241401045
+
 Phan Topik | 241401054
+
 Richard jonathan | 241401093
+
 Fernando Valens junior Ginting | 241401126
