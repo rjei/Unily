@@ -26,4 +26,4 @@ Phan Topik | 241401054
 Richard jonathan | 241401093
 
 Fernando Valens junior Ginting | 241401126
->>>>>>> e2842a8799aa234b1d782d33011929f2e84c1850
+
