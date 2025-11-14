@@ -8,6 +8,8 @@ import ServicesScreen from './pages/ServicesScreen';
 import ProductDetailScreen from './pages/ProductDetailScreen';
 import AuthScreen from './pages/AuthScreen';
 import ProfileScreen from './pages/ProfileScreen';
+import Seller from './pages/seller';
+import DaftarSeller from './pages/daftar_seller';
 
 // --- MOCK DATA --- (Akan diganti dengan API Express JS Anda)
 const mockProducts = [
@@ -115,6 +117,10 @@ function App() {
         return <AuthScreen onBack={() => navigate('home')} onAuthSuccess={handleAuthSuccess} currentUser={currentUser} />;
       case 'profile':
         return <ProfileScreen user={currentUser} onNavigate={navigate} onLogout={handleLogout} />;
+      case 'seller':
+        return <Seller onNavigate={navigate} />;
+        case 'daftar_seller':
+          return <DaftarSeller onNavigate={navigate} />;
       default:
         return (
           <HomeScreen
@@ -143,17 +149,17 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-        <Navbar currentUser={currentUser} onNavigate={navigate} cart={cart} showCart={showCart} setShowCart={setShowCart} />
+        {currentPage !== 'seller' && <Navbar currentUser={currentUser} onNavigate={navigate} cart={cart} showCart={showCart} setShowCart={setShowCart} />}
 
-        {/* Navigasi Utama: disembunyikan saat halaman Auth */}
-        {currentPage !== 'auth' && <PrimaryNav currentPage={currentPage} onNavigate={navigate} />}
+        {/* Navigasi Utama: disembunyikan saat halaman Auth dan Seller */}
+        {currentPage !== 'auth' && currentPage !== 'seller' && <PrimaryNav currentPage={currentPage} onNavigate={navigate} />}
         
         {/* Konten Halaman */}
         <div className="grow">
             {renderPage()}
         </div>
         
-        <Footer />
+        {currentPage !== 'seller' && <Footer />}
     </div>
   );
 }
