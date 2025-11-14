@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
 const AuthScreen = ({ onBack, onAuthSuccess, currentUser }) => {
   const [mode, setMode] = useState('login');
   const [email, setEmail] = useState('');
@@ -7,16 +9,58 @@ const AuthScreen = ({ onBack, onAuthSuccess, currentUser }) => {
   const [name, setName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    
     if (!email || !password || (mode === 'signup' && !name)) {
       setError('Mohon lengkapi semua field.');
       return;
     }
-    const user = { email, name: mode === 'signup' ? name : (currentUser?.name || 'Pengguna') };
-    onAuthSuccess(user);
+
+    setLoading(true);
+
+    try {
+      const endpoint = mode === 'login' ? '/auth/login' : '/auth/signup';
+      const body = mode === 'login' 
+        ? { email, password }
+        : { name, email, password };
+
+      const response = await fetch(`${API_URL}${endpoint}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Terjadi kesalahan');
+      }
+
+      // Simpan token jika ada
+      if (data.token) {
+        localStorage.setItem('unily_token', data.token);
+      }
+
+      // Simpan user data
+      const user = {
+        id: data.user.id,
+        name: data.user.name,
+        email: data.user.email,
+      };
+      
+      onAuthSuccess(user);
+    } catch (err) {
+      setError(err.message || 'Terjadi kesalahan saat ' + (mode === 'login' ? 'login' : 'signup'));
+      console.error('Auth error:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -65,7 +109,13 @@ const AuthScreen = ({ onBack, onAuthSuccess, currentUser }) => {
             <button type="button" className="text-sm text-orange-400 hover:underline">Lupa password?</button>
           </div>
           {error && <div className="text-red-400 text-sm">{error}</div>}
-          <button type="submit" className="w-full py-3 rounded-2xl font-bold bg-gradient-to-r from-orange-500 to-pink-600 hover:opacity-95 shadow-lg">{mode === 'login' ? 'MASUK' : 'DAFTAR'}</button>
+          <button 
+            type="submit" 
+            disabled={loading}
+            className="w-full py-3 rounded-2xl font-bold bg-gradient-to-r from-orange-500 to-pink-600 hover:opacity-95 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? 'Memproses...' : (mode === 'login' ? 'MASUK' : 'DAFTAR')}
+          </button>
         </form>
       </div>
     </main>
