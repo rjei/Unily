@@ -3,7 +3,7 @@ import { Briefcase, LayoutList } from 'lucide-react';
 
 const PrimaryNav = ({ currentPage, onNavigate }) => (
   <div className="relative flex justify-center bg-white border-b border-gray-100 shadow-sm sticky top-16 z-10">
-    <button onClick={() => onNavigate('auth')} className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-medium text-[oklch(0.4_0.15_140)] hover:text-[oklch(0.35_0.15_140)]">Daftar Jadi Seller</button>
+    <button onClick={() => onNavigate('daftar_seller')} className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-medium text-[oklch(0.4_0.15_140)] hover:text-[oklch(0.35_0.15_140)]">Daftar Jadi Seller</button>
     <div className="flex space-x-10 text-lg font-medium">
       <button onClick={() => onNavigate('home')} className={`py-3 px-6 transition-all duration-300 ${currentPage === 'home' ? 'text-[oklch(0.4_0.15_140)] border-b-4 border-[oklch(0.4_0.15_140)]' : 'text-gray-600 hover:text-[oklch(0.4_0.15_140)]'}`}>
         <LayoutList size={20} className="inline-block mr-2" /> Marketplace & Borrowing
