@@ -1,11 +1,16 @@
 const bcrypt = require('bcryptjs');
-const { v4: uuidv4 } = require('uuid');
 const userStore = require('../storage/userStore');
 const { generateToken } = require('../utils/token');
 
 const sanitizeUser = (user) => {
-  const { passwordHash, ...safeUser } = user;
-  return safeUser;
+  if (!user) return null;
+  const { passwordHash, password, ...rest } = user;
+  return {
+    id: rest.id,
+    name: rest.name,
+    email: rest.email,
+    createdAt: rest.createdAt,
+  };
 };
 
 const createError = (statusCode, message, details) => {
@@ -27,20 +32,12 @@ const signup = async (req, res) => {
   }
 
   const passwordHash = await bcrypt.hash(password, 10);
-  const newUser = {
-    id: uuidv4(),
-    name: name.trim(),
-    email: normalizedEmail,
-    passwordHash,
-    createdAt: new Date().toISOString(),
-  };
+  const created = await userStore.addUser({ name: name.trim(), email: normalizedEmail, passwordHash });
 
-  await userStore.addUser(newUser);
-
-  const token = generateToken({ sub: newUser.id, email: newUser.email });
+  const token = generateToken({ sub: created.id, email: created.email });
   res.status(201).json({
     message: 'Account created successfully',
-    user: sanitizeUser(newUser),
+    user: sanitizeUser(created),
     token,
   });
 };
