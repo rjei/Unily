@@ -39,7 +39,10 @@ const AuthScreen = ({ onBack, onAuthSuccess, currentUser }) => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || 'Terjadi kesalahan');
+        const message = data.details && Array.isArray(data.details)
+          ? data.details.join('; ')
+          : (data.message || 'Terjadi kesalahan');
+        throw new Error(message);
       }
 
       // Simpan token jika ada
