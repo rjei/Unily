@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Mail, Lock, User, Eye, EyeOff } from 'lucide-react';
 
-// --- 1. PERBAIKAN AUTOFILL: Samakan warna dengan background kartu (#6B7280) ---
+
 const AutofillStyle = () => (
     <style jsx>{`
         input:-webkit-autofill,
@@ -32,15 +32,15 @@ const AuthScreen = ({ onBack, onAuthSuccess }) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    // --- 2. LOGIKA VALIDASI TOMBOL ---
+
     const isLogin = authTab === 'login';
     
     const isFormValid = () => {
         if (isLogin) {
-            // Login: Butuh Email & Password
+           
             return formData.email.trim() !== '' && formData.password.trim() !== '';
         } else {
-            // Signup: Butuh Nama, Email, Password, & Confirm
+            
             return (
                 formData.name.trim() !== '' &&
                 formData.email.trim() !== '' &&
@@ -52,7 +52,7 @@ const AuthScreen = ({ onBack, onAuthSuccess }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (!isFormValid()) return; // Mencegah submit jika tidak valid
+        if (!isFormValid()) return; 
         
         if (!formData.email.endsWith('.ac.id')) {
             alert('Pendaftaran hanya dapat dilakukan dengan email kampus (.ac.id).');
@@ -65,21 +65,27 @@ const AuthScreen = ({ onBack, onAuthSuccess }) => {
         }
 
         console.log(`Mengirim data ${authTab}...`, formData);
+        
+     
         const mockUser = { id: Date.now(), name: formData.name || 'Pengguna', email: formData.email };
+        
         alert(`Sukses ${authTab}!`);
-        // onAuthSuccess(mockUser); 
-        onBack(); 
+        if (typeof onAuthSuccess === 'function') {
+             onAuthSuccess(mockUser);
+        } else {
+             onBack();
+        }
     };
 
     return (
-        <div className="min-h-screen w-full flex items-center justify-center p-4 bg-white"> {/* Background Halaman Putih */}
+        <div className="min-h-screen w-full flex items-center justify-center p-4 bg-white"> 
             
             <AutofillStyle />
 
-            {/* --- 3. DESAIN KARTU: Abu-abu Solid (bg-gray-500) sesuai gambar --- */}
+           
             <div className="w-full max-w-sm bg-gray-500 rounded-2xl shadow-xl overflow-hidden p-8 transition-all duration-500">
                 
-                {/* Header */}
+               
                 <div className="text-center mb-6"> 
                     <div className="flex items-center justify-center text-white mb-2">
                          <img src="/logo.png" alt="Unily" className="h-6 w-6 object-contain mr-2" /> 
@@ -90,7 +96,7 @@ const AuthScreen = ({ onBack, onAuthSuccess }) => {
                     </h2>
                 </div>
 
-                {/* Tabs */}
+             
                 <div className="flex justify-center bg-gray-600 rounded-lg p-1 mb-6">
                     <button
                         onClick={() => setAuthTab('login')}
@@ -106,7 +112,7 @@ const AuthScreen = ({ onBack, onAuthSuccess }) => {
                         onClick={() => setAuthTab('signup')}
                         className={`flex-1 text-center py-2 rounded-md text-sm font-semibold transition-all ${
                             !isLogin 
-                            ? 'bg-gray-500 text-white shadow-md' // Warna tombol aktif di tab signup (opsional, bisa disamakan gradien)
+                            ? 'bg-gray-500 text-white shadow-md' 
                             : 'text-gray-300 hover:text-white'
                         }`}
                     >
@@ -114,12 +120,12 @@ const AuthScreen = ({ onBack, onAuthSuccess }) => {
                     </button>
                 </div>
 
-                {/* Form */}
+                
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                     
                     {!isLogin && (
                         <div className="relative group">
-                             {/* Border input berubah warna saat fokus */}
+                            
                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <User size={18} className="text-gray-300" />
                             </div>
@@ -185,10 +191,10 @@ const AuthScreen = ({ onBack, onAuthSuccess }) => {
                         </div>
                     )}
                     
-                    {/* TOMBOL SUBMIT DENGAN LOGIKA DISABLED */}
+                    
                     <button 
                         type="submit" 
-                        disabled={!isFormValid()} // Matikan tombol jika form tidak valid
+                        disabled={!isFormValid()} 
                         className={`w-full font-bold py-3 rounded-lg text-sm tracking-wide uppercase transition-all mt-2 shadow-lg
                             ${isFormValid() 
                                 ? 'bg-gradient-to-r from-orange-500 to-pink-600 text-white hover:shadow-pink-500/30 transform hover:-translate-y-0.5 cursor-pointer' 
