@@ -1,12 +1,39 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-function daftar_seller({ onNavigate = () => {} }) {
+function daftar_seller({ onNavigate = () => {}, onAuthSuccess = () => {} }) {
   const [view, setView] = useState("home"); // 'home' | 'signin' | 'dashboard'
   const [authTab, setAuthTab] = useState("signin"); // 'signin' | 'signup'
   const [showPassword, setShowPassword] = useState(false);
   const [items, setItems] = useState([]);
   const [imagePreview, setImagePreview] = useState(null);
   const [dashboardTab, setDashboardTab] = useState("list"); // 'list' | 'add'
+  const [currentUser, setCurrentUser] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  // Check apakah user sudah login saat component mount
+  useEffect(() => {
+    const saved = localStorage.getItem("unily_user");
+    const token = localStorage.getItem("unily_token");
+    if (saved && token) {
+      try {
+        const user = JSON.parse(saved);
+        setCurrentUser(user);
+        setIsLoggedIn(true);
+        setView("dashboard");
+      } catch (_) {
+        localStorage.removeItem("unily_user");
+        localStorage.removeItem("unily_token");
+      }
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("unily_user");
+    localStorage.removeItem("unily_token");
+    setCurrentUser(null);
+    setIsLoggedIn(false);
+    setView("home");
+  };
 
   const showHome = view === "home";
   const showSignIn = view === "signin";
@@ -294,7 +321,7 @@ function daftar_seller({ onNavigate = () => {} }) {
                   {/* Login Form */}
                   {authTab === "signin" && (
                     <form
-                      onSubmit={(e) => {
+                      onSubmit={async (e) => {
                         e.preventDefault();
                         const form = e.target;
                         const emailInput = form.querySelector("#signin-email");
@@ -319,8 +346,44 @@ function daftar_seller({ onNavigate = () => {} }) {
                           return;
                         }
                         passwordInput.setCustomValidity("");
-                        setView("dashboard");
-                        setDashboardTab("add");
+
+                      
+                        try {
+                          const response = await fetch('http://localhost:5000/api/auth/login-seller', {
+                            method: 'POST',
+                            headers: {
+                              'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                              email: emailValue,
+                              password: passwordInput.value,
+                            }),
+                          });
+
+                          const data = await response.json();
+
+                          if (!response.ok) {
+                            alert(data.message || 'Login gagal');
+                            return;
+                          }
+
+                          // Simpan token & user ke localStorage
+                          localStorage.setItem('unily_token', data.token);
+                          localStorage.setItem('unily_user', JSON.stringify(data.user));
+
+                          // Notify parent (App) that auth succeeded so it can set currentUser and navigate to profile
+                          try {
+                            onAuthSuccess(data.user);
+                          } catch (e) {
+                            // fallback to local state if parent handler missing
+                            setCurrentUser(data.user);
+                            setIsLoggedIn(true);
+                            setView("dashboard");
+                            setDashboardTab("list");
+                          }
+                        } catch (err) {
+                          alert('Error: ' + err.message);
+                        }
                       }}
                       className="flex-1 flex flex-col"
                     >
@@ -388,7 +451,7 @@ function daftar_seller({ onNavigate = () => {} }) {
                   {/* Signup Form */}
                   {authTab === "signup" && (
                     <form
-                      onSubmit={(e) => {
+                      onSubmit={async (e) => {
                         e.preventDefault();
                         const form = e.target;
                         const nameInput = form.querySelector("#signup-name");
@@ -431,8 +494,44 @@ function daftar_seller({ onNavigate = () => {} }) {
                         }
                         confirmInput.setCustomValidity("");
 
-                        setView("dashboard");
-                        setDashboardTab("add");
+                      
+                        try {
+                          const response = await fetch('http://localhost:5000/api/auth/signup-seller', {
+                            method: 'POST',
+                            headers: {
+                              'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                              name: nameInput.value.trim(),
+                              email: emailValue,
+                              password: passwordInput.value,
+                            }),
+                          });
+
+                          const data = await response.json();
+
+                          if (!response.ok) {
+                            alert(data.message || 'Signup gagal');
+                            return;
+                          }
+
+                          // Simpan token & user ke localStorage
+                          localStorage.setItem('unily_token', data.token);
+                          localStorage.setItem('unily_user', JSON.stringify(data.user));
+
+                          // Notify parent (App) that auth succeeded so it can set currentUser and navigate to profile
+                          try {
+                            onAuthSuccess(data.user);
+                          } catch (e) {
+                            // fallback to local state if parent handler missing
+                            setCurrentUser(data.user);
+                            setIsLoggedIn(true);
+                            setView("dashboard");
+                            setDashboardTab("list");
+                          }
+                        } catch (err) {
+                          alert('Error: ' + err.message);
+                        }
                       }}
                       className="flex-1 flex flex-col"
                     >
@@ -513,30 +612,64 @@ function daftar_seller({ onNavigate = () => {} }) {
         )}
 
         {showDashboard && (
-          <div className="flex flex-col items-center gap-6">
-            <div className="w-full max-w-4xl px-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex rounded-lg bg-white border border-gray-200 p-1 shadow-sm">
+          <>
+
+            {currentUser?.role !== 'penjual' ? (
+              <div className="flex flex-col items-center justify-center min-h-[500px] gap-4">
+                <div className="text-center">
+                  <p className="text-lg font-bold text-gray-900 mb-2">Akses Ditolak</p>
+                  <p className="text-gray-600 mb-6">Hanya penjual yang dapat mengakses halaman ini</p>
                   <button
-                    type="button"
-                    className={`px-4 py-2 rounded-lg text-sm font-medium ${
-                      dashboardTab === "list"
-                        ? "bg-green-700 text-white"
-                        : "text-gray-700"
-                    }`}
-                    onClick={() => setDashboardTab("list")}
+                    onClick={() => {
+                      handleLogout();
+                      setView("home");
+                    }}
+                    className="bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600"
                   >
-                    Daftar Barang
+                    Kembali ke Home
                   </button>
-                  <button
-                    type="button"
-                    className={`ml-2 px-4 py-2 rounded-lg text-sm font-medium ${
-                      dashboardTab === "add"
-                        ? "bg-green-700 text-white"
-                        : "text-gray-700"
-                    }`}
-                    onClick={() => setDashboardTab("add")}
-                  >
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className="flex flex-col items-center gap-6">
+                  <div className="w-full max-w-4xl px-6">
+              
+                    <div className="flex items-center justify-between mb-6 p-4 bg-white rounded-lg border border-gray-200">
+                      <div>
+                        <p className="text-sm text-gray-600">Selamat datang,</p>
+                        <p className="text-lg font-bold text-gray-900">{currentUser?.name || "Penjual"}</p>
+                      </div>
+                      <button
+                        onClick={handleLogout}
+                        className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 text-sm font-medium"
+                      >
+                        Logout
+                      </button>
+                    </div>
+
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex rounded-lg bg-white border border-gray-200 p-1 shadow-sm">
+                        <button
+                          type="button"
+                          className={`px-4 py-2 rounded-lg text-sm font-medium ${
+                            dashboardTab === "list"
+                              ? "bg-green-700 text-white"
+                              : "text-gray-700"
+                          }`}
+                          onClick={() => setDashboardTab("list")}
+                        >
+                          Daftar Barang
+                        </button>
+                        <button
+                          type="button"
+                          className={`ml-2 px-4 py-2 rounded-lg text-sm font-medium ${
+                            dashboardTab === "add"
+                              ? "bg-green-700 text-white"
+                              : "text-gray-700"
+                          }`}
+                          onClick={() => setDashboardTab("add")}
+                        >
                     Tambah Barang
                   </button>
                 </div>
@@ -699,6 +832,9 @@ function daftar_seller({ onNavigate = () => {} }) {
               )}
             </div>
           </div>
+              </>
+            )}
+          </>
         )}
       </main>
 
@@ -707,7 +843,7 @@ function daftar_seller({ onNavigate = () => {} }) {
           <div className="w-full max-w-4xl mx-auto px-6 flex justify-center">
             <button
               className="bg-green-700 text-white border-none rounded-lg px-6 py-3 text-base font-semibold cursor-pointer transition-colors hover:bg-green-800 active:bg-gray-900 whitespace-nowrap"
-              onClick={() => onNavigate("seller")}
+              onClick={() => setView("signin")}
             >
               Daftar sebagai Penjual
             </button>

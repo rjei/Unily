@@ -151,6 +151,42 @@ function App() {
     window.scrollTo(0, 0);
   };
 
+  // Fetch fresh profile when navigating to profile (if token present)
+  useEffect(() => {
+    const fetchProfile = async () => {
+      const token = localStorage.getItem('unily_token');
+      if (!token) {
+        // Not authenticated - redirect to auth
+        setCurrentPage('auth');
+        return;
+      }
+      try {
+        const res = await fetch('http://localhost:5000/api/users/me', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) {
+          // Token might be invalid - clear and redirect to auth
+          localStorage.removeItem('unily_token');
+          localStorage.removeItem('unily_user');
+          setCurrentUser(null);
+          setCurrentPage('auth');
+          return;
+        }
+        const body = await res.json();
+        if (body && body.user) {
+          localStorage.setItem('unily_user', JSON.stringify(body.user));
+          setCurrentUser(body.user);
+        }
+      } catch (err) {
+        console.error('Failed to fetch profile:', err);
+      }
+    };
+
+    if (currentPage === 'profile') {
+      fetchProfile();
+    }
+  }, [currentPage]);
+
   // Restore sesi user dari localStorage
   useEffect(() => {
     const saved = localStorage.getItem("unily_user");
@@ -262,7 +298,7 @@ function App() {
       case "seller":
         return <Seller onNavigate={navigate} />;
       case "daftar_seller":
-        return <DaftarSeller onNavigate={navigate} />;
+        return <DaftarSeller onNavigate={navigate} onAuthSuccess={handleAuthSuccess} />;
       default:
         return (
           <HomeScreen
