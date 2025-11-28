@@ -4,7 +4,7 @@ const asyncHandler = require('../middleware/asyncHandler');
 const validateBody = require('../middleware/validateBody');
 
 const router = express.Router();
-const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const emailPattern = /^[^\s@]+@students\.usu\.ac\.id$/i;
 
 router.post(
   '/signup',
@@ -19,7 +19,7 @@ router.post(
       field: 'email',
       required: true,
       validator: (value) => emailPattern.test(value),
-      message: 'Email is invalid',
+      message: 'Email must be a students.usu.ac.id address',
     },
     {
       field: 'password',
@@ -38,7 +38,7 @@ router.post(
       field: 'email',
       required: true,
       validator: (value) => emailPattern.test(value),
-      message: 'Email is invalid',
+      message: 'Email must be a students.usu.ac.id address',
     },
     {
       field: 'password',

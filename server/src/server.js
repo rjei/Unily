@@ -6,11 +6,13 @@ const bootstrap = async () => {
   const server = http.createServer(app);
 
   server.listen(config.port, () => {
+
     console.log(`API server ready on http://localhost:${config.port}`);
   });
 };
 
 bootstrap().catch((error) => {
+  /* eslint-disable no-console */
   console.error('Unable to start server', error);
   process.exit(1);
 });

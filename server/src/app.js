@@ -19,6 +19,11 @@ const createApp = () => {
   app.use(express.json());
   app.use(morgan('dev'));
 
+
+  app.get('/', (req, res) => {
+    res.json({ message: 'Unily API - sorry this is the backend not the front end' });
+  });
+
   app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
   });
