@@ -3,7 +3,7 @@ import { Search, Heart, User, CheckCircle } from "lucide-react";
 import Navbar from "./components/Navbar";
 import PrimaryNav from "./components/PrimaryNav";
 import Footer from "./components/Footer";
-import BulletinPopup from "./components/BulletinPopup";
+// import BulletinPopup dihapus agar tidak muncul popup
 import HomeScreen from "./pages/HomeScreen";
 import ServicesScreen from "./pages/ServicesScreen";
 import ProductDetailScreen from "./pages/ProductDetailScreen";
@@ -12,7 +12,7 @@ import ProfileScreen from "./pages/ProfileScreen";
 import Seller from "./pages/seller";
 import DaftarSeller from "./pages/daftar_seller";
 
-// --- MOCK DATA --- (Akan diganti dengan API Express JS)
+// --- MOCK DATA ---
 const mockProducts = [
   {
     id: 5,
@@ -141,12 +141,14 @@ function App() {
   const [currentUser, setCurrentUser] = useState(null);
   const [cart, setCart] = useState([]);
   const [showCart, setShowCart] = useState(false);
-  const [showBulletinPopup, setShowBulletinPopup] = useState(false);
+  const [services, setServices] = useState(mockServices);
+
+  // State showBulletinPopup DIHAPUS karena Anda tidak menginginkannya
 
   const navigate = (page, item = null) => {
     setSelectedItem(item);
     setCurrentPage(page);
-    window.scrollTo(0, 0); // Gulir ke atas saat navigasi
+    window.scrollTo(0, 0);
   };
 
   // Restore sesi user dari localStorage
@@ -159,25 +161,18 @@ function App() {
         localStorage.removeItem("unily_user");
       }
     }
-
-    // Tampilkan pop-up bulletin saat pertama kali website dimuat
-    const hasSeenBulletin = localStorage.getItem("unily_bulletin_shown");
-    if (!hasSeenBulletin) {
-      setShowBulletinPopup(true);
-      localStorage.setItem("unily_bulletin_shown", "true");
-    }
+    // Logika popup di sini juga sudah DIHAPUS
   }, []);
 
   const handleSearch = (e) => {
     if (e.key === "Enter") {
-      // Implementasi API Call ke Express JS di sini 
       console.log(`Mencari "${searchText}" di API Express JS...`);
       alert(
         `Mencari: ${searchText}. Di Fase UAS, ini akan memanggil API Backend.`
       );
-      // Setelah API Call: navigate('search-results', results);
     }
   };
+
   const handleCheckout = (item) => {
     if (!item) return;
     const cartItem = {
@@ -189,11 +184,27 @@ function App() {
     setCart((prev) => [cartItem, ...prev]);
     alert(`Item "${item.name}" berhasil ditambahkan ke keranjang!`);
   };
+
+  const handleAddService = (serviceData) => {
+    const { name, price, ...rest } = serviceData;
+    const newService = {
+      id: Date.now(),
+      type: "Service",
+      rating: 5.0,
+      name: name?.trim() || "Jasa Mahasiswa",
+      price: Number(price) || 0,
+      ...rest,
+    };
+    setServices((prev) => [newService, ...prev]);
+    alert(`Jasa "${newService.name}" berhasil ditambahkan!`);
+  };
+
   const handleAuthSuccess = (user) => {
     localStorage.setItem("unily_user", JSON.stringify(user));
     setCurrentUser(user);
     navigate("profile");
   };
+
   const handleLogout = () => {
     localStorage.removeItem("unily_user");
     setCurrentUser(null);
@@ -210,17 +221,18 @@ function App() {
             setSearchText={setSearchText}
             handleSearch={handleSearch}
             onNavigate={navigate}
-            services={mockServices}
+            services={services}
             products={mockProducts}
-            bulletin={affiliatedBulletin}
+            bulletin={affiliatedBulletin} // Banner oranye di tengah halaman tetap ada
           />
         );
       case "services":
         return (
           <ServicesScreen
-            services={mockServices}
+            services={services}
             onNavigate={navigate}
             onCheckout={handleCheckout}
+            onAddService={handleAddService}
           />
         );
       case "details":
@@ -258,7 +270,7 @@ function App() {
             setSearchText={setSearchText}
             handleSearch={handleSearch}
             onNavigate={navigate}
-            services={mockServices}
+            services={services}
             products={mockProducts}
             bulletin={affiliatedBulletin}
           />
@@ -279,12 +291,10 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* Bulletin Pop-up */}
-      <BulletinPopup
-        data={affiliatedBulletin}
-        isOpen={showBulletinPopup}
-        onClose={() => setShowBulletinPopup(false)}
-      />
+      {/* REVISI: 
+         Komponen <BulletinPopup /> telah DIHAPUS.
+         Sekarang Navbar berada di paling atas sesuai permintaan gambar.
+      */}
 
       {currentPage !== "seller" && (
         <Navbar
@@ -296,7 +306,7 @@ function App() {
         />
       )}
 
-      {/* Navigasi Utama: disembunyikan saat halaman Auth dan Seller */}
+      {/* Navigasi Utama (Marketplace, Services Hub, dll) */}
       {currentPage !== "auth" && currentPage !== "seller" && (
         <PrimaryNav currentPage={currentPage} onNavigate={navigate} />
       )}
