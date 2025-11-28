@@ -3,6 +3,8 @@ const cors = require('cors');
 const morgan = require('morgan');
 const config = require('./config');
 const authRoutes = require('./routes/authRoutes');
+const sellerRoutes = require('./routes/sellerRoutes');
+const userRoutes = require('./routes/userRoutes');
 const errorHandler = require('./middleware/errorHandler');
 
 const createApp = () => {
@@ -29,6 +31,9 @@ const createApp = () => {
   });
 
   app.use('/api/auth', authRoutes);
+
+  app.use('/api/sellers', sellerRoutes);
+  app.use('/api/users', userRoutes);
 
   app.use(errorHandler);
 
