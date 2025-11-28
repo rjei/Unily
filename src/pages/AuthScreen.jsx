@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -25,13 +24,21 @@ const AuthScreen = ({ onBack, onAuthSuccess, currentUser }) => {
 
     try {
       const endpoint = mode === 'login' ? '/auth/login' : '/auth/signup';
-      const body = mode === 'login' ? { email, password } : { name, email, password };
+      const body = mode === 'login' 
+        ? { email, password }
+        : { name, email, password };
 
-      const { data, status } = await axios.post(`${API_URL}${endpoint}`, body, {
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch(`${API_URL}${endpoint}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
       });
 
-      if (status < 200 || status >= 300) {
+      const data = await response.json();
+
+      if (!response.ok) {
         throw new Error(data.message || 'Terjadi kesalahan');
       }
 
