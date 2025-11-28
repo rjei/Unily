@@ -141,6 +141,7 @@ function App() {
   const [currentUser, setCurrentUser] = useState(null);
   const [cart, setCart] = useState([]);
   const [showCart, setShowCart] = useState(false);
+  const [services, setServices] = useState(mockServices);
 
   // State showBulletinPopup DIHAPUS karena Anda tidak menginginkannya
 
@@ -184,6 +185,20 @@ function App() {
     alert(`Item "${item.name}" berhasil ditambahkan ke keranjang!`);
   };
 
+  const handleAddService = (serviceData) => {
+    const { name, price, ...rest } = serviceData;
+    const newService = {
+      id: Date.now(),
+      type: "Service",
+      rating: 5.0,
+      name: name?.trim() || "Jasa Mahasiswa",
+      price: Number(price) || 0,
+      ...rest,
+    };
+    setServices((prev) => [newService, ...prev]);
+    alert(`Jasa "${newService.name}" berhasil ditambahkan!`);
+  };
+
   const handleAuthSuccess = (user) => {
     localStorage.setItem("unily_user", JSON.stringify(user));
     setCurrentUser(user);
@@ -206,7 +221,7 @@ function App() {
             setSearchText={setSearchText}
             handleSearch={handleSearch}
             onNavigate={navigate}
-            services={mockServices}
+            services={services}
             products={mockProducts}
             bulletin={affiliatedBulletin} // Banner oranye di tengah halaman tetap ada
           />
@@ -214,9 +229,10 @@ function App() {
       case "services":
         return (
           <ServicesScreen
-            services={mockServices}
+            services={services}
             onNavigate={navigate}
             onCheckout={handleCheckout}
+            onAddService={handleAddService}
           />
         );
       case "details":
@@ -254,7 +270,7 @@ function App() {
             setSearchText={setSearchText}
             handleSearch={handleSearch}
             onNavigate={navigate}
-            services={mockServices}
+            services={services}
             products={mockProducts}
             bulletin={affiliatedBulletin}
           />
