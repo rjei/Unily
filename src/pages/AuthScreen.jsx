@@ -27,17 +27,11 @@ const AuthScreen = ({ onBack, onAuthSuccess, currentUser }) => {
       const endpoint = mode === 'login' ? '/auth/login' : '/auth/signup';
       const body = mode === 'login' ? { email, password } : { name, email, password };
 
-      const response = await fetch(`${API_URL}${endpoint}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(body),
+      const { data, status } = await axios.post(`${API_URL}${endpoint}`, body, {
+        headers: { 'Content-Type': 'application/json' },
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
+      if (status < 200 || status >= 300) {
         throw new Error(data.message || 'Terjadi kesalahan');
       }
 
