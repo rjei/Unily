@@ -19,6 +19,7 @@ const createError = (statusCode, message, details) => {
 
 const signup = async (req, res) => {
   const { name, email, password } = req.body;
+  console.log('Signup attempt:', { name, email });
   const normalizedEmail = email.toLowerCase();
 
   const existingUser = await userStore.findByEmail(normalizedEmail);
@@ -28,19 +29,26 @@ const signup = async (req, res) => {
 
   const passwordHash = await bcrypt.hash(password, 10);
   const newUser = {
-    id: uuidv4(),
+    // id will be assigned by the database (serial column). Provide name/email/passwordHash.
     name: name.trim(),
     email: normalizedEmail,
     passwordHash,
     createdAt: new Date().toISOString(),
   };
 
-  await userStore.addUser(newUser);
+  // Persist user and use the stored record for the response/token
+  let createdUser;
+  try {
+    createdUser = await userStore.addUser(newUser);
+  } catch (err) {
+    console.error('Error creating user in DB:', err);
+    throw createError(500, 'Failed to create user');
+  }
 
-  const token = generateToken({ sub: newUser.id, email: newUser.email });
+  const token = generateToken({ sub: createdUser.id, email: createdUser.email });
   res.status(201).json({
     message: 'Account created successfully',
-    user: sanitizeUser(newUser),
+    user: sanitizeUser(createdUser),
     token,
   });
 };
