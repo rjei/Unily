@@ -43,7 +43,7 @@ function daftar_seller({ onNavigate = () => {}, onAuthSuccess = () => {} }) {
     <div className="w-full bg-gray-100 min-h-screen flex flex-col relative overflow-x-hidden">
       {/* Web Hero Section */}
       <header
-        className="relative bg-gradient-to-br from-green-700 to-green-400 bg-cover bg-no-repeat bg-bottom-right p-0 overflow-hidden min-h-80"
+        className="relative bg-linear-to-br from-green-700 to-green-400 bg-cover bg-no-repeat bg-bottom-right p-0 overflow-hidden min-h-80"
         style={{
           backgroundImage:
             "url('/mascot-bear.png'), linear-gradient(135deg, #2E7D32 0%, #43A047 100%)",
@@ -95,7 +95,7 @@ function daftar_seller({ onNavigate = () => {}, onAuthSuccess = () => {} }) {
         {showHome && (
           <div className="flex flex-col gap-4">
             <div className="flex gap-4 p-4 border border-gray-200 rounded-lg bg-white">
-              <div className="flex-shrink-0 w-14 h-14 bg-green-50 rounded-lg flex items-center justify-center">
+              <div className="shrink-0 w-14 h-14 bg-green-50 rounded-lg flex items-center justify-center">
                 <svg
                   viewBox="0 0 24 24"
                   fill="none"
@@ -132,7 +132,7 @@ function daftar_seller({ onNavigate = () => {}, onAuthSuccess = () => {} }) {
             </div>
 
             <div className="flex gap-4 p-4 border border-gray-200 rounded-lg bg-white">
-              <div className="flex-shrink-0 w-14 h-14 bg-green-50 rounded-lg flex items-center justify-center">
+              <div className="shrink-0 w-14 h-14 bg-green-50 rounded-lg flex items-center justify-center">
                 <svg
                   viewBox="0 0 24 24"
                   fill="none"
@@ -167,7 +167,7 @@ function daftar_seller({ onNavigate = () => {}, onAuthSuccess = () => {} }) {
             </div>
 
             <div className="flex gap-4 p-4 border border-gray-200 rounded-lg bg-white">
-              <div className="flex-shrink-0 w-14 h-14 bg-green-50 rounded-lg flex items-center justify-center">
+              <div className="shrink-0 w-14 h-14 bg-green-50 rounded-lg flex items-center justify-center">
                 <svg
                   viewBox="0 0 24 24"
                   fill="none"

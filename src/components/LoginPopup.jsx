@@ -1,25 +1,8 @@
 import React, { useState } from "react";
 import { Mail, Lock, User, Eye, EyeOff } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 
-const AutofillStyle = () => (
-  <style jsx>{`
-    input:-webkit-autofill,
-    input:-webkit-autofill:hover,
-    input:-webkit-autofill:focus,
-    input:-webkit-autofill:active {
-      -webkit-box-shadow: 0 0 0px 1000px rgba(255, 255, 255, 0.15) inset !important;
-      box-shadow: 0 0 0px 1000px rgba(255, 255, 255, 0.15) inset !important;
-      -webkit-text-fill-color: white !important;
-      caret-color: white !important;
-      transition: background-color 5000s ease-in-out 0s;
-    }
-  `}</style>
-);
-
-const AuthScreen = ({ mode = "login", onBack, onAuthSuccess }) => {
-  const navigate = useNavigate();
-  const [authTab, setAuthTab] = useState(mode);
+const LoginPopup = ({ onClose, onAuthSuccess }) => {
+  const [authTab, setAuthTab] = useState("login");
   const [showPassword, setShowPassword] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [formData, setFormData] = useState({
@@ -68,48 +51,31 @@ const AuthScreen = ({ mode = "login", onBack, onAuthSuccess }) => {
       return;
     }
 
-    console.log(`Mengirim data ${authTab}...`, formData);
-
     const mockUser = {
       id: Date.now(),
       name: formData.name || "Pengguna",
       email: formData.email,
     };
 
-    alert(`Sukses ${authTab}!`);
     if (typeof onAuthSuccess === "function") {
       onAuthSuccess(mockUser);
-    } else {
-      onBack();
     }
+    onClose();
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center p-4 bg-black relative overflow-hidden">
-      <AutofillStyle />
-
-      {/* Video Background */}
-      <video
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="absolute inset-0 w-full h-full object-cover opacity-40"
-      >
-        <source
-          src="https://assets.mixkit.co/videos/preview/mixkit-students-studying-together-in-a-library-4895-large.mp4"
-          type="video/mp4"
-        />
-      </video>
-
-      {/* Dark Overlay */}
-      <div className="absolute inset-0 bg-linear-to-br from-[oklch(0.4_0.15_140)]/30 via-[oklch(0.35_0.15_140)]/40 to-gray-900/70"></div>
-
-      {/* Auth Card - Centered with Blur */}
-      <div className="relative z-10 w-full max-w-md bg-white/10 backdrop-blur-2xl rounded-3xl shadow-2xl overflow-hidden p-10 border border-white/20 transition-all duration-500">
+    <div
+      className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-9999 p-4"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+    >
+      <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden p-8 border border-gray-200 transition-all duration-500 animate-fadeIn">
         {/* Logo and Title */}
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center text-white mb-3">
+        <div className="text-center mb-6">
+          <div className="flex items-center justify-center text-gray-900 mb-2">
             <img
               src="/logo.png"
               alt="Unily"
@@ -117,9 +83,23 @@ const AuthScreen = ({ mode = "login", onBack, onAuthSuccess }) => {
             />
             <span className="text-3xl font-bold tracking-wide">Unily</span>
           </div>
-          <h2 className="text-3xl font-extrabold text-white">
-            {isLogin ? "Masuk ke Akun Anda" : "Buat Akun Baru"}
+          <h2 className="text-2xl font-bold text-gray-900">
+            {isLogin ? "Masuk ke Akun Anda" : "Daftar Sekarang!"}
           </h2>
+          <p className="text-sm text-gray-600 mt-2">
+            {isLogin
+              ? "Dapatkan akses ke ribuan produk & jasa kampus"
+              : "Bergabung dengan komunitas marketplace kampus terbesar"}
+          </p>
+          <p className="text-xs text-gray-500 mt-1">
+            {isLogin ? "Belum punya akun? " : "Sudah punya akun? "}
+            <button
+              onClick={() => setAuthTab(isLogin ? "signup" : "login")}
+              className="text-[oklch(0.4_0.15_140)] font-semibold hover:underline"
+            >
+              {isLogin ? "Daftar" : "Masuk"}
+            </button>
+          </p>
         </div>
 
         {/* Form */}
@@ -127,7 +107,7 @@ const AuthScreen = ({ mode = "login", onBack, onAuthSuccess }) => {
           {!isLogin && (
             <div className="relative group">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <User size={18} className="text-white/70" />
+                <User size={18} className="text-gray-500" />
               </div>
               <input
                 name="name"
@@ -135,14 +115,14 @@ const AuthScreen = ({ mode = "login", onBack, onAuthSuccess }) => {
                 placeholder="Nama Lengkap"
                 onChange={handleChange}
                 value={formData.name}
-                className="w-full pl-10 pr-4 py-3 bg-white/10 backdrop-blur-md border-2 border-white/30 rounded-xl text-white text-sm placeholder-white/60 focus:outline-none focus:border-white focus:bg-white/15 transition-all"
+                className="w-full pl-10 pr-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl text-gray-900 text-sm placeholder-gray-400 focus:outline-none focus:border-[oklch(0.4_0.15_140)] focus:bg-white transition-all"
               />
             </div>
           )}
 
           <div className="relative group">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Mail size={18} className="text-white/70" />
+              <Mail size={18} className="text-gray-500" />
             </div>
             <input
               name="email"
@@ -150,13 +130,13 @@ const AuthScreen = ({ mode = "login", onBack, onAuthSuccess }) => {
               placeholder="Email Kampus"
               onChange={handleChange}
               value={formData.email}
-              className="w-full pl-10 pr-4 py-3 bg-white/10 backdrop-blur-md border-2 border-white/30 rounded-xl text-white text-sm placeholder-white/60 focus:outline-none focus:border-white focus:bg-white/15 transition-all"
+              className="w-full pl-10 pr-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl text-gray-900 text-sm placeholder-gray-400 focus:outline-none focus:border-[oklch(0.4_0.15_140)] focus:bg-white transition-all"
             />
           </div>
 
           <div className="relative group">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Lock size={18} className="text-white/70" />
+              <Lock size={18} className="text-gray-500" />
             </div>
             <input
               name="password"
@@ -164,12 +144,12 @@ const AuthScreen = ({ mode = "login", onBack, onAuthSuccess }) => {
               placeholder="Kata Sandi"
               onChange={handleChange}
               value={formData.password}
-              className="w-full pl-10 pr-10 py-3 bg-white/10 backdrop-blur-md border-2 border-white/30 rounded-xl text-white text-sm placeholder-white/60 focus:outline-none focus:border-white focus:bg-white/15 transition-all"
+              className="w-full pl-10 pr-10 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl text-gray-900 text-sm placeholder-gray-400 focus:outline-none focus:border-[oklch(0.4_0.15_140)] focus:bg-white transition-all"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute inset-y-0 right-0 pr-3 flex items-center text-white/70 hover:text-white"
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700"
             >
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
@@ -178,7 +158,7 @@ const AuthScreen = ({ mode = "login", onBack, onAuthSuccess }) => {
           {!isLogin && (
             <div className="relative group">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Lock size={18} className="text-white/70" />
+                <Lock size={18} className="text-gray-500" />
               </div>
               <input
                 name="confirmPassword"
@@ -186,12 +166,11 @@ const AuthScreen = ({ mode = "login", onBack, onAuthSuccess }) => {
                 placeholder="Konfirmasi Kata Sandi"
                 onChange={handleChange}
                 value={formData.confirmPassword}
-                className="w-full pl-10 pr-4 py-3 bg-white/10 backdrop-blur-md border-2 border-white/30 rounded-xl text-white text-sm placeholder-white/60 focus:outline-none focus:border-white focus:bg-white/15 transition-all"
+                className="w-full pl-10 pr-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl text-gray-900 text-sm placeholder-gray-400 focus:outline-none focus:border-[oklch(0.4_0.15_140)] focus:bg-white transition-all"
               />
             </div>
           )}
 
-          {/* Terms and Conditions Checkbox - Only for Signup */}
           {!isLogin && (
             <div className="flex items-start">
               <input
@@ -203,19 +182,19 @@ const AuthScreen = ({ mode = "login", onBack, onAuthSuccess }) => {
               />
               <label
                 htmlFor="terms"
-                className="text-xs text-white/90 leading-relaxed"
+                className="text-xs text-gray-600 leading-relaxed"
               >
                 Saya setuju dengan{" "}
                 <a
                   href="#"
-                  className="text-[oklch(0.7_0.15_140)] underline hover:text-white"
+                  className="text-[oklch(0.4_0.15_140)] underline hover:text-[oklch(0.35_0.15_140)]"
                 >
                   Syarat & Ketentuan
                 </a>{" "}
                 serta{" "}
                 <a
                   href="#"
-                  className="text-[oklch(0.7_0.15_140)] underline hover:text-white"
+                  className="text-[oklch(0.4_0.15_140)] underline hover:text-[oklch(0.35_0.15_140)]"
                 >
                   Kebijakan Privasi
                 </a>{" "}
@@ -224,14 +203,13 @@ const AuthScreen = ({ mode = "login", onBack, onAuthSuccess }) => {
             </div>
           )}
 
-          {/* Submit Button */}
           <button
             type="submit"
             disabled={!isFormValid()}
             className={`w-full font-bold py-3 rounded-xl text-sm tracking-wide uppercase transition-all mt-2 shadow-lg ${
               isFormValid()
                 ? "bg-[oklch(0.4_0.15_140)] text-white hover:bg-[oklch(0.35_0.15_140)] transform hover:-translate-y-0.5 cursor-pointer"
-                : "bg-white/20 text-white/40 cursor-not-allowed"
+                : "bg-gray-300 text-gray-500 cursor-not-allowed"
             }`}
           >
             {isLogin ? "MASUK" : "DAFTAR"}
@@ -241,41 +219,16 @@ const AuthScreen = ({ mode = "login", onBack, onAuthSuccess }) => {
             <div className="text-center mt-2">
               <button
                 type="button"
-                className="text-xs text-white/80 hover:text-white transition-colors"
+                className="text-xs text-gray-600 hover:text-gray-900 transition-colors"
               >
                 Lupa Kata Sandi?
               </button>
             </div>
           )}
         </form>
-
-        {/* Switch Auth Mode Text */}
-        <div className="text-center mt-6">
-          {isLogin ? (
-            <p className="text-white/80 text-sm">
-              Belum punya akun?{" "}
-              <button
-                onClick={() => navigate("/signup")}
-                className="text-[oklch(0.7_0.15_140)] font-semibold hover:text-white transition-colors underline"
-              >
-                Daftar
-              </button>
-            </p>
-          ) : (
-            <p className="text-white/80 text-sm">
-              Punya akun?{" "}
-              <button
-                onClick={() => navigate("/login")}
-                className="text-[oklch(0.7_0.15_140)] font-semibold hover:text-white transition-colors underline"
-              >
-                Masuk
-              </button>
-            </p>
-          )}
-        </div>
       </div>
     </div>
   );
 };
 
-export default AuthScreen;
+export default LoginPopup;
