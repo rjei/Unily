@@ -238,6 +238,42 @@ function App() {
     );
   };
 
+  // Fetch fresh profile when navigating to profile (if token present)
+  useEffect(() => {
+    const fetchProfile = async () => {
+      const token = localStorage.getItem('unily_token');
+      if (!token) {
+        // Not authenticated - redirect to auth
+        setCurrentPage('auth');
+        return;
+      }
+      try {
+        const res = await fetch('http://localhost:5000/api/users/me', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) {
+          // Token might be invalid - clear and redirect to auth
+          localStorage.removeItem('unily_token');
+          localStorage.removeItem('unily_user');
+          setCurrentUser(null);
+          setCurrentPage('auth');
+          return;
+        }
+        const body = await res.json();
+        if (body && body.user) {
+          localStorage.setItem('unily_user', JSON.stringify(body.user));
+          setCurrentUser(body.user);
+        }
+      } catch (err) {
+        console.error('Failed to fetch profile:', err);
+      }
+    };
+
+    if (currentPage === 'profile') {
+      fetchProfile();
+    }
+  }, [currentPage]);
+
   // Restore sesi user dari localStorage
   useEffect(() => {
     const saved = localStorage.getItem("unily_user");
@@ -324,6 +360,20 @@ function App() {
     };
     setCart((prev) => [cartItem, ...prev]);
     alert(`Item "${item.name}" berhasil ditambahkan ke keranjang!`);
+  };
+
+  const handleAddService = (serviceData) => {
+    const { name, price, ...rest } = serviceData;
+    const newService = {
+      id: Date.now(),
+      type: "Service",
+      rating: 5.0,
+      name: name?.trim() || "Jasa Mahasiswa",
+      price: Number(price) || 0,
+      ...rest,
+    };
+    setServices((prev) => [newService, ...prev]);
+    alert(`Jasa "${newService.name}" berhasil ditambahkan!`);
   };
 
   const handleAuthSuccess = (user) => {
