@@ -1,153 +1,188 @@
-import React, { useState } from 'react';
-import { Mail, Lock, User, Eye, EyeOff } from 'lucide-react';
+import React, { useState } from "react";
+import { X, ChevronLeft, ChevronRight, CheckCircle } from "lucide-react";
 
-// --- Komponen Styling Khusus untuk Autofill ---
-const AutofillStyle = () => (
-    // CSS ini mengatasi masalah autofill browser yang memutihkan background
-    <style jsx>{`
-        input:-webkit-autofill,
-        input:-webkit-autofill:hover,
-        input:-webkit-autofill:focus,
-        input:-webkit-autofill:active {
-            /* Memaksa warna latar belakang menjadi gelap (sesuai form) */
-            -webkit-box-shadow: 0 0 0px 1000px #0F4C5C inset !important; 
-            box-shadow: 0 0 0px 1000px #0F4C5C inset !important;
-            -webkit-text-fill-color: white !important; /* Memastikan teks tetap putih */
-            color: white !important;
-            transition: background-color 5000s ease-in-out 0s;
+const BulletinPopup = ({ onClose }) => {
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  const slides = [
+    {
+      id: 1,
+      title: "🎉 Flash Sale Hari Ini!",
+      description: "Diskon hingga 50% untuk produk elektronik pilihan",
+      image:
+        "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=800",
+      features: [
+        "Laptop & Tablet mulai Rp 2 juta",
+        "Gratis ongkir se-kampus",
+        "Cashback 10% untuk pengguna baru",
+      ],
+      cta: "Belanja Sekarang",
+      badge: "PROMO",
+    },
+    {
+      id: 2,
+      title: "📚 Sewa Buku Kuliah Hemat!",
+      description: "Hemat hingga 70% dengan sistem sewa buku semester",
+      image:
+        "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=800",
+      features: [
+        "Koleksi lengkap semua jurusan",
+        "Sistem sewa fleksibel",
+        "Kondisi buku terjamin bagus",
+      ],
+      cta: "Cek Katalog",
+      badge: "HEMAT",
+    },
+    {
+      id: 3,
+      title: "💼 Jadi Seller, Raih Cuan!",
+      description: "Mulai berjualan dan monetize skillmu sekarang",
+      image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800",
+      features: [
+        "Daftar seller 100% gratis",
+        "Dashboard lengkap & mudah",
+        "Komisi 0% untuk 3 bulan pertama",
+      ],
+      cta: "Daftar Seller",
+      badge: "GRATIS",
+    },
+    {
+      id: 4,
+      title: "🎓 Jasa Les & Mentoring",
+      description: "Tingkatkan IPK dengan mentor terbaik di kampus",
+      image:
+        "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800",
+      features: [
+        "Mentor berpengalaman IPK > 3.5",
+        "Jadwal fleksibel sesuai kebutuhan",
+        "Garansi nilai atau uang kembali",
+      ],
+      cta: "Cari Mentor",
+      badge: "POPULER",
+    },
+    {
+      id: 5,
+      title: "🏪 Partner Resmi Toko Kampus",
+      description: "Belanja kebutuhan kampus dari toko official verified",
+      image: "https://images.unsplash.com/photo-1555421689-491a97ff2040?w=800",
+      features: [
+        "Gramedia, Indomaret, Alfamart",
+        "Harga sama dengan toko fisik",
+        "Poin reward setiap pembelian",
+      ],
+      cta: "Lihat Toko",
+      badge: "OFFICIAL",
+    },
+  ];
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % slides.length);
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
+  };
+
+  return (
+    <div
+      className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-9999 p-4"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
         }
-        /* Memastikan input tetap transparan saat aktif */
-        input:focus {
-             background-color: transparent !important;
-        }
-    `}</style>
-);
+      }}
+    >
+      <div className="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl overflow-hidden">
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 z-10 p-2 bg-white/90 hover:bg-white rounded-full shadow-lg transition-colors"
+        >
+          <X size={20} className="text-gray-700" />
+        </button>
 
-
-const AuthScreen = ({ onBack, onAuthSuccess }) => { // Menggunakan nama AuthScreen
-    const [authTab, setAuthTab] = useState('login');
-    const [showPassword, setShowPassword] = useState(false);
-    const [formData, setFormData] = useState({
-        name: '',
-        email: '',
-        password: '',
-        confirmPassword: ''
-    });
-
-    const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        
-        // Validasi FrontEnd: Wajib .ac.id
-        if (!formData.email.endsWith('.ac.id')) {
-            alert('Pendaftaran hanya dapat dilakukan dengan email kampus yang berakhiran .ac.id (misal: @universitas.ac.id).');
-            return;
-        }
-
-        if (authTab === 'signup' && formData.password !== formData.confirmPassword) {
-            alert('Kata sandi dan konfirmasi tidak cocok.');
-            return;
-        }
-
-        // --- Simulasi API Call ---
-        console.log(`Mengirim data ${authTab} ke BackEnd...`, formData);
-        
-        const mockUser = { id: Date.now(), name: formData.name || 'Pengguna', email: formData.email };
-        alert(`Sukses ${authTab}! Data akan di-hash dan disimpan di PostgreSQL.`);
-        
-        // onAuthSuccess(mockUser); // Uncomment ini setelah integrasi
-        onBack(); // Kembali ke halaman utama setelah simulasi sukses
-    };
-
-    const isLogin = authTab === 'login';
-
-    return (
-        // Latar Belakang Halaman: Menggunakan warna Teal/Hijau Gelap solid
-        <div className="min-h-screen flex items-center justify-center p-4 bg-white">
-            
-            <AutofillStyle /> {/* Wajib dimasukkan untuk mengatasi masalah putih saat autofill */}
-
-            {/* Formulir Glassmorphism Gelap */}
-            <div className="w-full max-w-md bg-black/50 backdrop-blur-md border border-white/10 rounded-3xl shadow-2xl overflow-hidden p-8 transition-all duration-500">
-                
-                {/* Header Card */}
-                <div className="text-center mb-6 mt-4"> 
-                    <div className="flex items-center justify-center text-white mb-2">
-                        {/* Placeholder Logo Unily */}
-                        <img src="/logo.png" alt="Unily" className="h-8 w-8 object-contain mr-2" /> 
-                        <span className="text-xl font-bold">Unily</span>
-                    </div>
-                    <h2 className="text-3xl font-extrabold text-white mb-1">
-                        {isLogin ? 'Masuk ke Akun Anda' : 'Buat Akun Baru'}
-                    </h2>
-                </div>
-
-                {/* Tabs Login/Signup */}
-                <div className="flex justify-center bg-black/30 rounded-xl p-1 mb-8">
-                    <button
-                        onClick={() => setAuthTab('login')}
-                        className={`flex-1 text-center py-2 rounded-lg text-sm font-semibold transition-all ${
-                            isLogin ? 'bg-gradient-to-r from-orange-500 to-pink-600 text-white shadow-lg' : 'text-white/80 hover:bg-white/10'
-                        }`}
-                    >
-                        Login
-                    </button>
-                    <button
-                        onClick={() => setAuthTab('signup')}
-                        className={`flex-1 text-center py-2 rounded-lg text-sm font-semibold transition-all ${
-                            !isLogin ? 'bg-gradient-to-r from-orange-500 to-pink-600 text-white shadow-lg' : 'text-white/80 hover:bg-white/10'
-                        }`}
-                    >
-                        Sign Up
-                    </button>
-                </div>
-
-                {/* Form */}
-                <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                    
-                    {!isLogin && (
-                        <div className="relative">
-                            <User size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/70" />
-                            <input name="name" type="text" placeholder="Nama Lengkap" onChange={handleChange} value={formData.name} required className="w-full pl-10 pr-4 py-3 bg-black/30 border border-white/30 rounded-lg text-white placeholder-white/70 focus:ring-teal-500 focus:border-teal-500" />
-                        </div>
-                    )}
-
-                    <div className="relative">
-                        <Mail size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/70" />
-                        <input name="email" type="email" placeholder="Email Kampus (.ac.id)" onChange={handleChange} value={formData.email} required className="w-full pl-10 pr-4 py-3 bg-black/30 border border-white/30 rounded-lg text-white placeholder-white/70 focus:ring-teal-500 focus:border-teal-500" />
-                    </div>
-
-                    <div className="relative">
-                        <Lock size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/70" />
-                        <input name="password" type={showPassword ? 'text' : 'password'} placeholder="Kata Sandi" onChange={handleChange} value={formData.password} required className="w-full pl-10 pr-10 py-3 bg-black/30 border border-white/30 rounded-lg text-white placeholder-white/70 focus:ring-teal-500 focus:border-teal-500" />
-                        <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/70 hover:text-white">
-                            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                        </button>
-                    </div>
-                    
-                    {!isLogin && (
-                        <div className="relative">
-                            <Lock size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/70" />
-                            <input name="confirmPassword" type="password" placeholder="Konfirmasi Kata Sandi" onChange={handleChange} value={formData.confirmPassword} required className="w-full pl-10 pr-4 py-3 bg-black/30 border border-white/30 rounded-lg text-white placeholder-white/70 focus:ring-teal-500 focus:border-teal-500" />
-                        </div>
-                    )}
-                    
-                    <button type="submit" className="w-full bg-gradient-to-r from-orange-600 to-pink-600 text-white font-semibold py-3 rounded-lg hover:from-orange-700 hover:to-pink-700 transition-colors mt-4 shadow-xl shadow-pink-600/30">
-                        {isLogin ? 'MASUK' : 'DAFTAR'}
-                    </button>
-                    
-                    {isLogin && (
-                         <div className="text-center mt-3">
-                            <button type="button" className="text-sm text-white/80 hover:underline">Lupa Kata Sandi?</button>
-                        </div>
-                    )}
-                </form>
+        <div className="relative">
+          <div className="w-full h-64 bg-linear-to-br from-gray-100 to-gray-200 overflow-hidden relative">
+            <img
+              src={slides[currentSlide].image}
+              alt={slides[currentSlide].title}
+              className="w-full h-full object-cover"
+            />
+            {/* Badge Promo */}
+            <div className="absolute top-4 left-4 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
+              {slides[currentSlide].badge}
             </div>
+          </div>
+
+          {slides.length > 1 && (
+            <>
+              <button
+                onClick={prevSlide}
+                className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-white/90 hover:bg-white rounded-full shadow-lg transition-colors"
+              >
+                <ChevronLeft size={24} className="text-gray-700" />
+              </button>
+              <button
+                onClick={nextSlide}
+                className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-white/90 hover:bg-white rounded-full shadow-lg transition-colors"
+              >
+                <ChevronRight size={24} className="text-gray-700" />
+              </button>
+            </>
+          )}
+
+          <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
+            {slides.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentSlide(index)}
+                className={`w-2 h-2 rounded-full transition-all ${
+                  index === currentSlide
+                    ? "bg-white w-6"
+                    : "bg-white/50 hover:bg-white/75"
+                }`}
+              />
+            ))}
+          </div>
         </div>
-    );
+
+        <div className="p-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            {slides[currentSlide].title}
+          </h2>
+          <p className="text-gray-600 mb-6">
+            {slides[currentSlide].description}
+          </p>
+
+          <div className="space-y-3 mb-6">
+            {slides[currentSlide].features.map((feature, index) => (
+              <div key={index} className="flex items-start gap-3">
+                <CheckCircle
+                  className="text-[oklch(0.4_0.15_140)] shrink-0 mt-0.5"
+                  size={20}
+                />
+                <span className="text-sm text-gray-700">{feature}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex gap-3">
+            <button
+              onClick={onClose}
+              className="flex-1 py-3 px-6 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors text-sm"
+            >
+              Nanti Saja
+            </button>
+            <button
+              onClick={onClose}
+              className="flex-1 py-3 px-6 bg-[oklch(0.4_0.15_140)] text-white rounded-xl font-medium hover:bg-[oklch(0.35_0.15_140)] transition-colors text-sm"
+            >
+              {slides[currentSlide].cta}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 };
 
-export default AuthScreen;
+export default BulletinPopup;

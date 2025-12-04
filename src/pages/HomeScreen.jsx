@@ -1,65 +1,250 @@
-import React from 'react';
-import { Briefcase, ChevronRight, LayoutList } from 'lucide-react';
-import Bulletin from '../components/Bulletin';
-import ProductCard from '../components/ProductCard';
+import React, { useState, useEffect } from "react";
+import { Briefcase, ChevronRight, LayoutList } from "lucide-react";
+import ProductCard from "../components/ProductCard";
 
-const HomeScreen = ({ searchText, setSearchText, handleSearch, onNavigate, services, products, bulletin }) => (
-  <main className="container mx-auto px-4 py-8 max-w-7xl">
-    <div className="text-center mb-16 pt-8 pb-10 bg-white rounded-3xl shadow-xl border border-gray-100">
-        <h1 className="text-5xl font-extrabold text-gray-900 mb-3">
-          Sewa dan Jual <span className="text-[oklch(0.4_0.15_140)]">Khusus Kampus</span>
-        </h1>
-      <p className="text-xl text-gray-600 mb-8">
-        Temukan semua kebutuhan fisik (barang) dan skill (jasa) dalam satu tempat terverifikasi.
-      </p>
-      <div className="w-full max-w-3xl mx-auto">
-        <div className="relative">
-          <input
-            type="text"
-            placeholder="Cari kamera, buku, jasa desain, atau tutor intensif..."
-            className="w-full pl-14 pr-4 py-4 text-xl border-4 border-[oklch(0.4_0.15_140)] rounded-full focus:outline-none focus:ring-4 focus:ring-[oklch(0.8_0.1_140)] transition-all shadow-lg"
-            value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
-            onKeyDown={handleSearch}
-          />
-          <svg className="absolute left-4 top-4 h-6 w-6 text-gray-400" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 21l-4.35-4.35" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><circle cx="10" cy="10" r="7" stroke="currentColor" strokeWidth="2"/></svg>
+const HomeScreen = ({
+  searchText,
+  setSearchText,
+  handleSearch,
+  onNavigate,
+  services,
+  products,
+  bulletin,
+}) => {
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  const slides = [
+    {
+      title: "Sewa dan Jual",
+      subtitle: "Khusus Kampus",
+      description: "Temukan kebutuhan fisik & skill terverifikasi",
+      bgColor: "from-green-100 via-emerald-50 to-teal-50",
+      image: "/mascot.png",
+      fallback: "https://i.imgur.com/8yQzVqS.png",
+      features: [
+        "Terverifikasi Kampus",
+        "Hemat Biaya & Waktu",
+        "Chat Langsung In-App",
+      ],
+    },
+    {
+      title: "Unily Study",
+      subtitle: "Siap Tempur UTS/UAS?",
+      description:
+        "Dapatkan mentor terbaik dari fakultasmu. Daftar sekarang untuk les intensif!",
+      bgColor: "from-blue-100 via-cyan-50 to-sky-50",
+      image:
+        "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600",
+      fallback:
+        "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600",
+      features: ["Mentor Terbaik", "Les Intensif", "Hasil Maksimal"],
+    },
+    {
+      title: "Solusi Kampus",
+      subtitle: "Terpercaya",
+      description:
+        "Unily menghubungkan mahasiswa dengan barang & jasa yang dibutuhkan dalam satu platform aman",
+      bgColor: "from-purple-100 via-violet-50 to-indigo-50",
+      image:
+        "https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?w=600",
+      fallback:
+        "https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?w=600",
+      features: ["Platform Aman", "Transaksi Mudah", "Support 24/7"],
+    },
+  ];
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
+    <main className="w-full">
+      {/* Hero Section with Full Slide */}
+      <div
+        className={`relative w-full h-[600px] bg-linear-to-br ${slides[currentSlide].bgColor} overflow-hidden transition-all duration-1000`}
+      >
+        {/* Background Image Overlay */}
+        <div
+          className="absolute inset-0 bg-cover bg-center opacity-30"
+          style={{
+            backgroundImage:
+              "url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1600')",
+          }}
+        ></div>
+
+        {/* Content Container */}
+        <div className="relative container mx-auto px-8 py-16 h-full">
+          <div className="grid grid-cols-2 gap-8 items-center h-full">
+            {/* Left Side - Text and Stats with Slide Transition */}
+            <div key={currentSlide} className="animate-fadeIn">
+              {/* Hero Text */}
+              <div className="mb-12">
+                <h1 className="text-6xl font-extrabold leading-tight mb-4">
+                  <span className="text-gray-800">
+                    {slides[currentSlide].title}
+                  </span>
+                  <br />
+                  <span className="text-[oklch(0.4_0.15_140)]">
+                    {slides[currentSlide].subtitle}
+                  </span>
+                </h1>
+                <p className="text-lg text-gray-700 font-medium">
+                  {slides[currentSlide].description}
+                </p>
+              </div>
+
+              {/* Stats Cards */}
+              <div className="flex items-center gap-4 mb-6">
+                {/* Stat Card 1 */}
+                <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-xl w-40 transition-transform duration-300 hover:scale-110">
+                  <div className="text-4xl font-bold text-[oklch(0.4_0.15_140)] mb-1">
+                    1000+
+                  </div>
+                  <p className="text-xs text-gray-600 font-medium">
+                    Produk & Jasa
+                    <br />
+                    Tersedia
+                  </p>
+                </div>
+
+                {/* Stat Card 2 */}
+                <div className="bg-[oklch(0.4_0.15_140)]/80 backdrop-blur-sm rounded-2xl p-6 shadow-xl w-40 transition-transform duration-300 hover:scale-110">
+                  <div className="text-4xl font-bold text-white mb-1">100%</div>
+                  <p className="text-xs text-white font-medium">
+                    Terverifikasi
+                    <br />
+                    Kampus
+                  </p>
+                </div>
+              </div>
+
+              {/* CTA Button */}
+              <button
+                onClick={() => {
+                  const searchInput =
+                    document.querySelector('input[type="text"]');
+                  if (searchInput) searchInput.focus();
+                }}
+                className="bg-[oklch(0.4_0.15_140)] hover:opacity-80 text-white font-bold text-base px-6 py-3 rounded-full shadow-2xl transition-opacity duration-300"
+              >
+                MULAI CARI SEKARANG
+              </button>
+            </div>
+
+            {/* Right Side - Image/Mascot */}
+            <div className="relative flex items-center justify-center">
+              {/* Decorative Background Circle */}
+              <div className="absolute inset-0 bg-white/20 rounded-full blur-3xl scale-75"></div>
+
+              {/* Image/Mascot with Padding */}
+              <div className="relative z-10 bg-white/40 backdrop-blur-sm rounded-3xl p-8 shadow-2xl">
+                <img
+                  src={slides[currentSlide].image}
+                  alt={slides[currentSlide].title}
+                  className="w-80 h-80 object-contain rounded-2xl"
+                  style={{
+                    filter:
+                      currentSlide === 0
+                        ? "drop-shadow(0 10px 30px rgba(0,0,0,0.15))"
+                        : "none",
+                  }}
+                  onError={(e) => {
+                    e.target.src = slides[currentSlide].fallback;
+                  }}
+                />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
 
-    <Bulletin data={bulletin} />
+      {/* Bulletin Card - Positioned below hero section */}
+      <div className="container mx-auto px-8 -mt-20 mb-8 relative z-0">
+        <div className="max-w-sm ml-auto bg-white/95 backdrop-blur-sm rounded-2xl p-5 shadow-xl">
+          <h3 className="text-base font-bold text-gray-800 mb-2">
+            {slides[currentSlide].title} {slides[currentSlide].subtitle}
+          </h3>
+          <p className="text-xs text-gray-600 mb-4">
+            {slides[currentSlide].description}
+          </p>
 
-    <section className="mb-16">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-3xl font-bold text-gray-800 flex items-center"><LayoutList size={28} className="mr-3 text-[oklch(0.4_0.15_140)]"/> Barang Sewa & Jual Terpopuler</h2>
-        <button onClick={() => onNavigate('home')} className="text-[oklch(0.4_0.15_140)] flex items-center hover:text-[oklch(0.35_0.15_140)] font-medium">
-          Lihat Semua Barang <ChevronRight size={18}/>
-        </button>
-      </div>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {products.slice(0, 3).map(item => (
-          <ProductCard key={item.id} item={item} onClick={() => onNavigate('details', item)} showOfficial={true} />
-        ))}
-      </div>
-    </section>
+          {/* Features List */}
+          <div className="space-y-2 mb-4">
+            {slides[currentSlide].features.map((feature, idx) => (
+              <div
+                key={idx}
+                className="flex items-center text-xs text-gray-700"
+              >
+                <div className="w-5 h-5 rounded-full bg-[oklch(0.4_0.15_140)]/20 flex items-center justify-center mr-2">
+                  <svg
+                    className="w-3 h-3 text-[oklch(0.4_0.15_140)]"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+                <span className="font-medium">{feature}</span>
+              </div>
+            ))}
+          </div>
 
-    <div className="mt-16 p-8 bg-[oklch(0.95_0.05_140)] rounded-2xl shadow-inner flex justify-around">
-      <div className="text-center">
-        <svg className="text-[oklch(0.4_0.15_140)] mx-auto mb-2" width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M9 12l2 2 4-4"/></svg>
-        <p className="font-semibold text-gray-700">Terverifikasi Kampus</p>
+          {/* Slide Indicators - More Visible */}
+          <div className="flex justify-center gap-2">
+            {slides.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentSlide(index)}
+                className={`h-2 rounded-full transition-all duration-300 ${
+                  index === currentSlide
+                    ? "bg-[oklch(0.4_0.15_140)] w-8"
+                    : "bg-gray-300 hover:bg-gray-400 w-2"
+                }`}
+              />
+            ))}
+          </div>
+        </div>
       </div>
-      <div className="text-center">
-        <svg className="text-[oklch(0.4_0.15_140)] mx-auto mb-2" width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M12 8v8m-4-4h8"/></svg>
-        <p className="font-semibold text-gray-700">Hemat Biaya & Waktu</p>
+
+      {/* Rest of Content */}
+      <div className="container mx-auto px-4 py-8 max-w-7xl">
+        <section className="mb-16">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-3xl font-bold text-gray-800 flex items-center">
+              <LayoutList
+                size={28}
+                className="mr-3 text-[oklch(0.4_0.15_140)]"
+              />{" "}
+              Barang Sewa & Jual Terpopuler
+            </h2>
+            <button
+              onClick={() => onNavigate("home")}
+              className="text-[oklch(0.4_0.15_140)] flex items-center hover:text-[oklch(0.35_0.15_140)] font-medium"
+            >
+              Lihat Semua Barang <ChevronRight size={18} />
+            </button>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {products.slice(0, 3).map((item) => (
+              <ProductCard
+                key={item.id}
+                item={item}
+                onClick={() => onNavigate("details", item)}
+                showOfficial={true}
+              />
+            ))}
+          </div>
+        </section>
       </div>
-      <div className="text-center">
-        <svg className="text-[oklch(0.4_0.15_140)] mx-auto mb-2" width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-        <p className="font-semibold text-gray-700">Chat Langsung In-App</p>
-      </div>
-    </div>
-  </main>
-);
+    </main>
+  );
+};
 
 export default HomeScreen;
-
-
