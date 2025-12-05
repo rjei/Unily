@@ -15,6 +15,7 @@ import AuthScreen from "./pages/AuthScreen";
 import ProfileScreen from "./pages/ProfileScreen";
 import Seller from "./pages/seller";
 import DaftarSeller from "./pages/daftar_seller";
+import AdminUsersPanel from "./pages/daftar_users_admin_only";
 import NotFound from "./pages/NotFound";
 
 const mockProducts = [
@@ -215,18 +216,18 @@ function App() {
   const currentPage = location.pathname.substring(1) || "home";
 
   const navigate = (page, item = null) => {
-    if (page === "login" || page === "signup" || page === "daftar_seller") {
+    if (page === "login" || page === "signup" || page === "daftar_seller" || page === "admin_users") {
       setIsLoading(true);
     }
     setSelectedItem(item);
 
     setTimeout(
       () => {
-        navigateRouter(`/${page}`);
+        navigateRouter(`/${page === "admin_users" ? "admin/users" : page}`);
         window.scrollTo(0, 0);
         setIsLoading(false);
       },
-      page === "login" || page === "signup" || page === "daftar_seller"
+      page === "login" || page === "signup" || page === "daftar_seller" || page === "admin_users"
         ? 800
         : 0
     );

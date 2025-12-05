@@ -358,12 +358,22 @@ const Navbar = ({
             )}
           </div>
           {currentUser ? (
-            <button
-              onClick={() => onNavigate("profile")}
-              className="bg-gray-900 text-white px-5 py-2 rounded-xl text-sm font-medium hover:bg-gray-800 transition-colors"
-            >
-              Profil
-            </button>
+            <>
+              {currentUser.role === 'admin' && (
+                <button
+                  onClick={() => onNavigate('admin_users')}
+                  className="bg-purple-600 text-white px-5 py-2 rounded-xl text-sm font-medium hover:bg-purple-700 transition-colors"
+                >
+                  Daftar Users
+                </button>
+              )}
+              <button
+                onClick={() => onNavigate("profile")}
+                className="bg-gray-900 text-white px-5 py-2 rounded-xl text-sm font-medium hover:bg-gray-800 transition-colors"
+              >
+                Profil
+              </button>
+            </>
           ) : (
             <>
               <button
