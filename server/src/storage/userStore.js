@@ -85,12 +85,66 @@ const updateRole = async (userId, newRole) => {
   };
 };
 
+const deleteUser = async (userId) => {
+  const result = await pool.query(
+    'DELETE FROM users WHERE id_users = $1 RETURNING id_users, nama, email, role, dibuat',
+    [userId]
+  );
+  if (!result.rows[0]) {
+    return null;
+  }
+  const row = result.rows[0];
+  return {
+    id: row.id_users,
+    name: row.nama,
+    email: row.email,
+    role: row.role,
+    createdAt: row.dibuat,
+  };
+};
+
+const updateUser = async (userId, updates) => {
+  const fields = [];
+  const values = [];
+  let idx = 1;
+
+  if (typeof updates.name !== 'undefined') {
+    fields.push(`nama = $${idx++}`);
+    values.push(updates.name);
+  }
+  if (typeof updates.email !== 'undefined') {
+    fields.push(`email = $${idx++}`);
+    values.push(updates.email);
+  }
+  if (typeof updates.role !== 'undefined') {
+    fields.push(`role = $${idx++}`);
+    values.push(updates.role);
+  }
+
+  if (fields.length === 0) return null;
+
+  values.push(userId);
+  const query = `UPDATE users SET ${fields.join(', ')} WHERE id_users = $${idx} RETURNING id_users, nama, email, role, dibuat`;
+  const result = await pool.query(query, values);
+  if (!result.rows[0]) return null;
+  const row = result.rows[0];
+  return {
+    id: row.id_users,
+    name: row.nama,
+    email: row.email,
+    role: row.role,
+    createdAt: row.dibuat,
+  };
+};
+
 module.exports = {
   getAllUsers,
   findByEmail,
   addUser,
   updateRole,
   findById,
+  deleteUser,
+  updateUser,
 };
 
 
