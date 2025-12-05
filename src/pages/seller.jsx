@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Menu,
   X,
@@ -18,21 +18,26 @@ import {
   BarChart3,
 } from 'lucide-react'
 
-function Seller({ onNavigate = () => {} }) {
+function Seller({ onNavigate = () => {}, currentUser }) {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [currentSection, setCurrentSection] = useState('dashboard')
   const [showAccountModal, setShowAccountModal] = useState(false)
-  const [accountData, setAccountData] = useState({
-    name: 'John Doe',
-    email: 'john@usu.ac.id',
-    phone: '08123456789',
-    address: 'Jl. Merdeka No. 123',
-    city: 'Medan', 
-    province: 'Sumatera Utara',
-    postal: '20123'
-  })
+  
+  const getInitialAccountData = (user) => ({ 
+    name: user?.name || 'Penjual Unily',
+    email: user?.email || 'email@kampus.ac.id',
+    phone: user?.phone || '08XX XXXX XXXX',
+    address: user?.address || 'Alamat Penjual',
+    city: user?.city || 'Kota', 
+    province: user?.province || 'Provinsi',
+    postal: user?.postal || '10000'
+  });
+
+  const initialAccountData = getInitialAccountData(currentUser);
+
+  const [accountData, setAccountData] = useState(initialAccountData)
   const [editingAccount, setEditingAccount] = useState(false)
-  const [tempAccountData, setTempAccountData] = useState(accountData)
+  const [tempAccountData, setTempAccountData] = useState(initialAccountData)
   const [items, setItems] = useState([
     { id: 1, image: '📦', name: 'Jaket Almamater', price: 120000, stock: 4, category: 'Pakaian', date: '05/10/2025', status: 'Aktif' },
     { id: 2, image: '📷', name: 'Kamera DSLR Canon 700D', price: 100000, stock: 2, category: 'Elektronik', date: '03/10/2025', status: 'Aktif' },
@@ -42,6 +47,14 @@ function Seller({ onNavigate = () => {} }) {
   const [formData, setFormData] = useState({ image: '', name: '', price: '', stock: '', category: '' })
   const [searchTerm, setSearchTerm] = useState('')
   const [showAddModal, setShowAddModal] = useState(false)
+
+  useEffect(() => {
+    if (currentUser) {
+        const updatedData = getInitialAccountData(currentUser);
+        setAccountData(updatedData);
+        setTempAccountData(updatedData);
+    }
+  }, [currentUser]);
 
   const handleAddItem = (e) => {
     e.preventDefault()
@@ -75,7 +88,6 @@ function Seller({ onNavigate = () => {} }) {
     setEditingAccount(false)
   }
 
-  // --- Sales data and statistics (mock data) ---
   const daysAgo = (d) => {
     const dt = new Date()
     dt.setDate(dt.getDate() - d)
@@ -93,7 +105,7 @@ function Seller({ onNavigate = () => {} }) {
     { id: 109, date: daysAgo(20), amount: 30000, itemsSold: 1, category: 'Pakaian' },
     { id: 110, date: daysAgo(25), amount: 250000, itemsSold: 6, category: 'Elektronik' },
     { id: 111, date: daysAgo(28), amount: 80000, itemsSold: 2, category: 'Buku' },
-    { id: 112, date: daysAgo(35), amount: 50000, itemsSold: 1, category: 'Audio' }, // older than 30 days
+    { id: 112, date: daysAgo(35), amount: 50000, itemsSold: 1, category: 'Audio' },
   ])
 
   const today = new Date()
@@ -145,7 +157,6 @@ function Seller({ onNavigate = () => {} }) {
 
   return (
     <div className="flex h-screen bg-gray-100">
-      {/* Sidebar */}
       <aside className={`${sidebarOpen ? 'w-64' : 'w-20'} bg-green-900 text-white transition-all duration-300 overflow-y-auto`}>
         <div className="p-6 flex items-center justify-between">
           <h1 className={`font-bold text-xl ${!sidebarOpen && 'hidden'}`}>UNILY</h1>
@@ -184,7 +195,6 @@ function Seller({ onNavigate = () => {} }) {
           ))}
         </nav>
 
-        {/* Back to Buyer Dashboard Button */}
         <div className="px-4 py-3 border-t border-green-700">
           <button
             onClick={() => onNavigate('home')}
@@ -196,7 +206,6 @@ function Seller({ onNavigate = () => {} }) {
         </div>
 
         <div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-green-900 to-green-800 border-t border-green-700">
-          {/* User Profile Section */}
           <button
             onClick={() => {
               setShowAccountModal(true)
@@ -215,7 +224,6 @@ function Seller({ onNavigate = () => {} }) {
             )}
           </button>
 
-          {/* Logout Button */}
           <div className={`px-4 py-3 border-t border-green-700 ${!sidebarOpen && 'flex justify-center'}`}>
             <button
               onClick={() => onNavigate('home')}
@@ -228,7 +236,6 @@ function Seller({ onNavigate = () => {} }) {
         </div>
       </aside>
 
-      {/* Account Modal */}
       {showAccountModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg shadow-xl p-8 max-w-md w-full mx-4">
@@ -363,7 +370,6 @@ function Seller({ onNavigate = () => {} }) {
         </div>
       )}
 
-      {/* Add Item Modal */}
       {showAddModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-lg mx-4">
@@ -405,9 +411,7 @@ function Seller({ onNavigate = () => {} }) {
         </div>
       )}
 
-      {/* Main Content */}
       <main className="flex-1 overflow-y-auto overflow-x-hidden">
-        {/* Top Bar */}
         <div className="bg-white border-b border-gray-200 p-6 flex items-center justify-between sticky top-0 z-10">
           <h2 className="text-2xl font-bold text-gray-800">{sectionTitle}</h2>
           <div className="flex items-center gap-4">
@@ -435,11 +439,9 @@ function Seller({ onNavigate = () => {} }) {
           </div>
         </div>
 
-        {/* Content Area */}
         <div className={`p-6 ${currentSection === 'dashboard' ? 'pb-16 mb-8' : ''}`}>
           {currentSection === 'dashboard' ? (
             <div className="pb-4">
-              {/* Stats Overview */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                 <div className="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-lg p-6 shadow-lg">
                   <div className="flex items-center justify-between mb-2">
@@ -491,9 +493,8 @@ function Seller({ onNavigate = () => {} }) {
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                {/* Sales by Category */}
                 <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-                  <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                  <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
                     <BarChart3 className="text-green-600" size={20} />
                     Penjualan per Kategori
                   </h3>
@@ -531,7 +532,6 @@ function Seller({ onNavigate = () => {} }) {
                   </div>
                 </div>
 
-                {/* Top Products */}
                 <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
                   <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
                     <TrendingUp className="text-green-600" size={20} />
@@ -586,7 +586,6 @@ function Seller({ onNavigate = () => {} }) {
                 </div>
               </div>
 
-              {/* Recent Sales */}
               <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm mb-8">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
@@ -654,7 +653,6 @@ function Seller({ onNavigate = () => {} }) {
             </div>
           ) : (
             <>
-              {/* Mobile Search Bar */}
               {(currentSection === 'daftar_barang' || currentSection === 'pesanan') && (
                 <div className="md:hidden mb-4">
                   <div className="relative">
@@ -670,9 +668,6 @@ function Seller({ onNavigate = () => {} }) {
                 </div>
               )}
 
-              {/* Add-item UI removed per request */}
-
-              {/* Table */}
               <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
                 <div className="overflow-x-auto">
                   <table className="w-full">
@@ -726,7 +721,6 @@ function Seller({ onNavigate = () => {} }) {
                 </div>
               </div>
 
-              {/* Empty State */}
               {items.length === 0 && (
                 <div className="bg-white border border-gray-200 rounded-lg p-12 text-center">
                   <p className="text-gray-500 text-lg mb-4">Belum ada barang yang ditambahkan</p>
