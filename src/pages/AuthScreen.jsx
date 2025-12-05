@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Mail, Lock, User, Eye, EyeOff } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { getApiUrl } from "../config";
 
 const AutofillStyle = () => (
   <style jsx>{`
@@ -19,7 +20,22 @@ const AutofillStyle = () => (
 
 const AuthScreen = ({ mode = "login", onBack, onAuthSuccess }) => {
   const navigate = useNavigate();
-  const [authTab, setAuthTab] = useState(mode);
+  const location = useLocation();
+  
+  const currentMode = location.pathname === "/signup" ? "signup" : "login";
+  const [authTab, setAuthTab] = useState(currentMode);
+  
+  useEffect(() => {
+    setAuthTab(currentMode);
+    setFormData({
+      name: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    });
+    setError("");
+    setAgreedToTerms(false);
+  }, [currentMode]);
   const [showPassword, setShowPassword] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [error, setError] = useState("");
@@ -83,7 +99,7 @@ const AuthScreen = ({ mode = "login", onBack, onAuthSuccess }) => {
             password: formData.password,
           };
 
-      const response = await fetch(`http://localhost:5000/api${endpoint}`, {
+      const response = await fetch(getApiUrl(`api${endpoint}`), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -118,7 +134,6 @@ const AuthScreen = ({ mode = "login", onBack, onAuthSuccess }) => {
         localStorage.setItem("unily_user", JSON.stringify(user));
       }
 
-      // Panggil callback success
       if (typeof onAuthSuccess === "function") {
         onAuthSuccess(user);
       } else {

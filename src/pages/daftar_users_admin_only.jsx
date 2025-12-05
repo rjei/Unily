@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Trash2, RefreshCw, LogOut } from 'lucide-react';
+import { getApiUrl } from '../config';
 
 const AdminUsersPanel = ({ onNavigate, onLogout, currentUser }) => {
   const [users, setUsers] = useState([]);
@@ -17,7 +18,7 @@ const AdminUsersPanel = ({ onNavigate, onLogout, currentUser }) => {
         return;
       }
 
-      const res = await fetch('http://localhost:5000/api/users', {
+      const res = await fetch(getApiUrl('api/users'), {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -45,7 +46,7 @@ const AdminUsersPanel = ({ onNavigate, onLogout, currentUser }) => {
 
     try {
       const token = localStorage.getItem('unily_token');
-      const res = await fetch(`http://localhost:5000/api/users/${userId}`, {
+      const res = await fetch(getApiUrl(`api/users/${userId}`), {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -82,7 +83,7 @@ const AdminUsersPanel = ({ onNavigate, onLogout, currentUser }) => {
     setEditLoading(true);
     try {
       const token = localStorage.getItem('unily_token');
-      const res = await fetch(`http://localhost:5000/api/users/${editingUser.id}`, {
+      const res = await fetch(getApiUrl(`api/users/${editingUser.id}`), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

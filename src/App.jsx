@@ -17,6 +17,7 @@ import Seller from "./pages/seller";
 import DaftarSeller from "./pages/daftar_seller";
 import AdminUsersPanel from "./pages/daftar_users_admin_only";
 import NotFound from "./pages/NotFound";
+import { getApiUrl } from "./config";
 
 const mockProducts = [
   {
@@ -241,7 +242,7 @@ function App() {
         return;
       }
       try {
-        const res = await fetch('http://localhost:5000/api/users/me', {
+        const res = await fetch(getApiUrl('api/users/me'), {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) {

@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { getApiUrl } from '../config'
 
 function daftar_seller({ onNavigate = () => {}, onBecomeSeller = () => {} }) {
   const [view, setView] = useState('home')
@@ -23,7 +24,7 @@ function daftar_seller({ onNavigate = () => {}, onBecomeSeller = () => {} }) {
 
     (async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/sellers/become', {
+        const res = await fetch(getApiUrl('api/sellers/become'), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
