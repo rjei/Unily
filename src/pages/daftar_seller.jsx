@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 
-function daftar_seller({ onNavigate = () => {}, onSetSeller }) {
+function daftar_seller({ onNavigate = () => {}, onBecomeSeller = () => {} }) {
   const [view, setView] = useState('home')
   const [showPassword, setShowPassword] = useState(false)
   const [items, setItems] = useState([])
@@ -15,13 +15,55 @@ function daftar_seller({ onNavigate = () => {}, onSetSeller }) {
   const showDashboard = view === 'dashboard' 
 
   const handleRegisterClick = () => {
-    // Tandai pengguna sebagai penjual
-    if (typeof onSetSeller === 'function') {
-      onSetSeller(true);
-    }
+    const token = localStorage.getItem('unily_token');
     
-    setPlayCount(0)
-    setShowMascotWave(true)
+    // Perbaikan: Pastikan pengguna sudah login sebelum mencoba API
+    if (!token) {
+      // Menggunakan alert karena code ini berjalan di web app, bukan di Node.js
+      alert('Anda harus login terlebih dahulu untuk mendaftar sebagai penjual.');
+      onNavigate('login');
+      return;
+    }
+
+    (async () => {
+      try {
+        // API call to become seller
+        const res = await fetch('http://localhost:5000/api/sellers/become', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}));
+          const msg = body && body.message ? body.message : 'Gagal mendaftar sebagai penjual';
+          alert(msg);
+          return;
+        }
+
+        const body = await res.json();
+        const newUser = body.user;
+        
+        if (newUser) {
+          // Perbaikan: Meneruskan objek user baru (dengan isSeller: true) ke App.jsx
+          if (typeof onBecomeSeller === 'function') {
+            onBecomeSeller(newUser); 
+          } else {
+            // Fallback (simpan ke localStorage jika prop tidak ada)
+            localStorage.setItem('unily_user', JSON.stringify(newUser));
+          }
+        }
+
+        // Mulai animasi setelah pendaftaran berhasil
+        setPlayCount(0);
+        setShowMascotWave(true);
+      } catch (err) {
+        console.error('Error becoming seller', err);
+        alert('Terjadi kesalahan saat mendaftar sebagai penjual.');
+      }
+    })();
   }
 
   useEffect(() => {

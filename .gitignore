@@ -28,3 +28,4 @@ server/.env
 .env
 server/data/users.json
 .env
+.env

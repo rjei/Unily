@@ -507,7 +507,19 @@ function App() {
           <Route path="/seller" element={<Seller onNavigate={navigate} currentUser={currentUser} />} />
           <Route
             path="/daftar_seller"
-            element={<DaftarSeller onNavigate={navigate} onSetSeller={setIsSellerStatus} />}
+             element={
+              <DaftarSeller
+                onNavigate={navigate}
+                onBecomeSeller={(user) => {
+                  try {
+                    localStorage.setItem('unily_user', JSON.stringify(user));
+                    setCurrentUser(user);
+                  } catch (err) {
+                    console.error('Failed to update currentUser after becoming seller', err);
+                  }
+                }}
+              />
+            }
           />
           <Route path="*" element={<NotFound onNavigate={navigate} />} />
         </Routes>
