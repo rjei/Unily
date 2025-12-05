@@ -232,6 +232,17 @@ function App() {
     );
   };
 
+  const setIsSellerStatus = (isSellerStatus) => {
+    setCurrentUser(prevUser => {
+        if (prevUser) {
+            const updatedUser = { ...prevUser, isSeller: isSellerStatus };
+            localStorage.setItem("unily_user", JSON.stringify(updatedUser));
+            return updatedUser;
+        }
+        return prevUser;
+    });
+  };
+
   useEffect(() => {
     const fetchProfile = async () => {
       const token = localStorage.getItem('unily_token');
@@ -395,7 +406,7 @@ function App() {
       )}
 
       {!hideNavbar && currentPage !== "seller" && (
-        <PrimaryNav currentPage={currentPage} onNavigate={navigate} />
+        <PrimaryNav currentPage={currentPage} onNavigate={navigate} currentUser={currentUser} />
       )}
 
       <div className="grow">
@@ -496,7 +507,7 @@ function App() {
           <Route path="/seller" element={<Seller onNavigate={navigate} currentUser={currentUser} />} />
           <Route
             path="/daftar_seller"
-            element={<DaftarSeller onNavigate={navigate} />}
+            element={<DaftarSeller onNavigate={navigate} onSetSeller={setIsSellerStatus} />}
           />
           <Route path="*" element={<NotFound onNavigate={navigate} />} />
         </Routes>

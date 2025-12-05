@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 
-function daftar_seller({ onNavigate = () => {} }) {
+function daftar_seller({ onNavigate = () => {}, onSetSeller }) {
   const [view, setView] = useState('home')
   const [showPassword, setShowPassword] = useState(false)
   const [items, setItems] = useState([])
@@ -15,13 +15,17 @@ function daftar_seller({ onNavigate = () => {} }) {
   const showDashboard = view === 'dashboard' 
 
   const handleRegisterClick = () => {
+    // Tandai pengguna sebagai penjual
+    if (typeof onSetSeller === 'function') {
+      onSetSeller(true);
+    }
+    
     setPlayCount(0)
     setShowMascotWave(true)
   }
 
   useEffect(() => {
     if (showMascotWave) {
-      // try to play when modal opens
       setTimeout(() => {
         if (videoRef.current) {
           videoRef.current.currentTime = 0
@@ -38,7 +42,6 @@ function daftar_seller({ onNavigate = () => {} }) {
         setShowMascotWave(false)
         onNavigate('seller')
       } else {
-        // replay
         if (videoRef.current) {
           videoRef.current.currentTime = 0
           videoRef.current.play().catch(() => {})
@@ -50,7 +53,6 @@ function daftar_seller({ onNavigate = () => {} }) {
 
   return (
     <div className="w-full bg-gray-100 min-h-screen flex flex-col relative overflow-x-hidden">
-      {/* Tombol Kembali di kiri atas */}
       <button
         className="absolute top-4 left-4 bg-white border border-gray-300 rounded-lg px-4 py-2 text-green-700 font-semibold shadow hover:bg-green-50 transition z-50"
         onClick={() => onNavigate('home')}
@@ -58,7 +60,6 @@ function daftar_seller({ onNavigate = () => {} }) {
         ← Kembali
       </button>
 
-      {/* Web Hero Section */}
       <header className="relative bg-gradient-to-br from-green-700 to-green-500 p-0 overflow-hidden min-h-80">
         <div className="w-full max-w-4xl mx-auto px-6 py-20 relative z-10 flex flex-col items-center justify-center h-full">
           {showHome && (
@@ -80,7 +81,6 @@ function daftar_seller({ onNavigate = () => {} }) {
             </>
           )}
         </div>
-        {/* Decorative pattern at bottom */}
         <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/10 to-transparent"></div>
         <img 
             src="/mascot.png" 
@@ -96,7 +96,6 @@ function daftar_seller({ onNavigate = () => {} }) {
         />
       </header>
 
-      {/* Main Content Area */}
       <main className="w-full max-w-4xl mx-auto px-6 relative z-20 -mt-12 pb-12 flex-1">
         {showHome && (
           <div className="flex flex-col gap-4">
@@ -203,7 +202,6 @@ function daftar_seller({ onNavigate = () => {} }) {
         </div>
       )}
 
-      {/* Mascot Waving Modal */}
       {showMascotWave && (
         <div 
           className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 cursor-pointer"
@@ -219,7 +217,7 @@ function daftar_seller({ onNavigate = () => {} }) {
             <div className="mb-6 flex justify-center">
               <video 
                 ref={videoRef}
-                src="/animasi-halo.mp4" 
+                src="/animasi-halo.webm" 
                 className="w-48 h-48 object-contain rounded-lg cursor-pointer"
                 autoPlay
                 loop={false}
