@@ -1,7 +1,12 @@
 import React from "react";
-import { Briefcase, LayoutList } from "lucide-react";
+import { Briefcase, LayoutList, Store } from "lucide-react";
 
-const PrimaryNav = ({ currentPage, onNavigate }) => {
+const PrimaryNav = ({ currentPage, onNavigate, currentUser }) => {
+  // Tentukan teks, icon, dan tujuan tombol Penjual
+  const isSeller = currentUser && currentUser.isSeller;
+  const sellerButtonText = isSeller ? "Toko Saya" : "Mulai Berjualan";
+  const sellerButtonPath = isSeller ? "seller" : "daftar_seller";
+  
   // Determine which categories to show based on current page
   const categories =
     currentPage === "services"
@@ -17,13 +22,25 @@ const PrimaryNav = ({ currentPage, onNavigate }) => {
     <div className={`${bgColor} shadow-sm sticky top-[60px] z-50`}>
       <div className="container mx-auto">
         <div className="flex items-center justify-between px-2">
-          {/* Left - Mulai Berjualan */}
-          <button
-            onClick={() => onNavigate("daftar_seller")}
-            className="text-sm font-semibold text-white/90 hover:text-white rounded-lg py-2.5 px-4 transition-all duration-300"
-          >
-            {isServicesPage ? "Tawarkan Jasamu" : "Mulai Berjualan"}
-          </button>
+          {/* Left - Tombol Seller Kondisional */}
+          {currentUser && (
+            <button
+              onClick={() => onNavigate(sellerButtonPath)}
+              className="text-sm font-semibold text-white/90 hover:text-white rounded-lg py-2.5 px-4 transition-all duration-300 flex items-center gap-2"
+            >
+              <Store size={16} className={isSeller ? 'text-white' : 'text-white/70'} />
+              {sellerButtonText}
+            </button>
+          )}
+          
+          {!currentUser && (
+            <button
+              onClick={() => onNavigate("daftar_seller")}
+              className="text-sm font-semibold text-white/90 hover:text-white rounded-lg py-2.5 px-4 transition-all duration-300"
+            >
+              {isServicesPage ? "Tawarkan Jasamu" : "Mulai Berjualan"}
+            </button>
+          )}
 
           {/* Center - Main Navigation */}
           <div className="flex items-center space-x-2">

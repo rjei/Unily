@@ -15,6 +15,7 @@ import AuthScreen from "./pages/AuthScreen";
 import ProfileSettingsScreen from "./pages/ProfileSettingsScreen";
 import Seller from "./pages/seller";
 import DaftarSeller from "./pages/daftar_seller";
+import AdminUsersPanel from "./pages/daftar_users_admin_only";
 import NotFound from "./pages/NotFound";
 
 const mockProducts = [
@@ -247,21 +248,32 @@ function App() {
   const currentPage = location.pathname.substring(1) || "home";
 
   const navigate = (page, item = null) => {
-    if (page === "login" || page === "signup" || page === "daftar_seller") {
+    if (page === "login" || page === "signup" || page === "daftar_seller" || page === "admin_users") {
       setIsLoading(true);
     }
     setSelectedItem(item);
 
     setTimeout(
       () => {
-        navigateRouter(`/${page}`);
+        navigateRouter(`/${page === "admin_users" ? "admin/users" : page}`);
         window.scrollTo(0, 0);
         setIsLoading(false);
       },
-      page === "login" || page === "signup" || page === "daftar_seller"
+      page === "login" || page === "signup" || page === "daftar_seller" || page === "admin_users"
         ? 800
         : 0
     );
+  };
+
+  const setIsSellerStatus = (isSellerStatus) => {
+    setCurrentUser(prevUser => {
+        if (prevUser) {
+            const updatedUser = { ...prevUser, isSeller: isSellerStatus };
+            localStorage.setItem("unily_user", JSON.stringify(updatedUser));
+            return updatedUser;
+        }
+        return prevUser;
+    });
   };
 
   useEffect(() => {
@@ -429,7 +441,7 @@ function App() {
       )}
 
       {!hideNavbar && currentPage !== "seller" && (
-        <PrimaryNav currentPage={currentPage} onNavigate={navigate} />
+        <PrimaryNav currentPage={currentPage} onNavigate={navigate} currentUser={currentUser} />
       )}
 
       <div className="grow">
@@ -532,7 +544,7 @@ function App() {
           />
           <Route
             path="/daftar_seller"
-            element={
+             element={
               <DaftarSeller
                 onNavigate={navigate}
                 onBecomeSeller={(user) => {

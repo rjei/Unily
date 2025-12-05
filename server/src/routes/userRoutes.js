@@ -1,15 +1,23 @@
 const express = require('express');
-const { getMe, getById } = require('../controllers/userController');
+const { getMe, getById, getAllUsers, deleteUser, updateUser } = require('../controllers/userController');
 const asyncHandler = require('../middleware/asyncHandler');
 const authenticate = require('../middleware/auth');
-const { ownsResource } = require('../middleware/checker');
+const { ownsResource, isAdmin } = require('../middleware/checker');
 
 const router = express.Router();
 
-// GET /api/users/me - authenticated user's profile
+
 router.get('/me', authenticate, asyncHandler(getMe));
 
-// GET /api/users/:userId - view user by id (must own resource or admin)
+
+router.get('/', authenticate, isAdmin, asyncHandler(getAllUsers));
+
+
 router.get('/:userId', authenticate, ownsResource, asyncHandler(getById));
+
+
+router.delete('/:userId', authenticate, isAdmin, asyncHandler(deleteUser));
+
+router.put('/:userId', authenticate, isAdmin, asyncHandler(updateUser));
 
 module.exports = router;

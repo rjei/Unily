@@ -259,29 +259,46 @@ const Navbar = ({
                             <p className="text-sm text-gray-600 mb-3">
                               Menunggu Pembayaran
                             </p>
-                            
+
                             {/* Display Latest Order */}
                             {cart.length > 0 && (
                               <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-100">
-                                <p className="text-xs font-semibold text-gray-700 mb-2">Order Terbaru:</p>
+                                <p className="text-xs font-semibold text-gray-700 mb-2">
+                                  Order Terbaru:
+                                </p>
                                 <div className="flex items-center gap-2 mb-2">
-                                  <img 
-                                    src={cart[0].image} 
+                                  <img
+                                    src={cart[0].image}
                                     alt={cart[0].name}
                                     className="w-10 h-10 rounded object-cover"
                                   />
                                   <div className="flex-1 min-w-0">
-                                    <p className="text-xs font-medium text-gray-900 truncate">{cart[0].name}</p>
-                                    <p className="text-xs text-gray-600">Rp {cart[0].price?.toLocaleString('id-ID')}</p>
+                                    <p className="text-xs font-medium text-gray-900 truncate">
+                                      {cart[0].name}
+                                    </p>
+                                    <p className="text-xs text-gray-600">
+                                      Rp{" "}
+                                      {cart[0].price?.toLocaleString("id-ID")}
+                                    </p>
                                   </div>
                                 </div>
                                 <div className="text-xs text-gray-600 space-y-1">
-                                  <p><span className="font-medium">Tanggal:</span> {cart[0].checkoutDate}</p>
-                                  <p><span className="font-medium">Status:</span> <span className="text-orange-600 font-semibold">{cart[0].status}</span></p>
+                                  <p>
+                                    <span className="font-medium">
+                                      Tanggal:
+                                    </span>{" "}
+                                    {cart[0].checkoutDate}
+                                  </p>
+                                  <p>
+                                    <span className="font-medium">Status:</span>{" "}
+                                    <span className="text-orange-600 font-semibold">
+                                      {cart[0].status}
+                                    </span>
+                                  </p>
                                 </div>
                               </div>
                             )}
-                            
+
                             {/* Status Icons */}
                             <div className="grid grid-cols-4 gap-2 mb-4">
                               <button className="flex flex-col items-center p-2 hover:bg-gray-50 rounded-lg">
@@ -390,37 +407,47 @@ const Navbar = ({
             )}
           </div>
           {currentUser ? (
-            <div className="relative" ref={profileRef}>
-              <button
-                onMouseEnter={() => setShowProfileDropdown(true)}
-                onClick={() => setShowProfileDropdown(!showProfileDropdown)}
-                className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded-xl transition-colors group"
-              >
-                <div
-                  className={`w-9 h-9 rounded-full flex items-center justify-center ${
-                    currentPage === "services"
-                      ? "bg-linear-to-br from-orange-400 to-orange-600"
-                      : "bg-linear-to-br from-green-400 to-green-600"
-                  }`}
+            <div className="flex items-center gap-3">
+              {currentUser.role === "admin" && (
+                <button
+                  onClick={() => onNavigate("admin_users")}
+                  className="bg-purple-600 text-white px-5 py-2 rounded-xl text-sm font-medium hover:bg-purple-700 transition-colors"
                 >
-                  <User size={18} className="text-white" />
-                </div>
-                <div className="hidden group-hover:block text-left">
-                  <p className="text-xs font-semibold text-gray-900">
-                    {currentUser?.name || "John"}
-                  </p>
-                  <p className="text-xs text-gray-500">View Profile</p>
-                </div>
-              </button>
-              {showProfileDropdown && (
-                <ProfileDropdown
-                  currentUser={currentUser}
-                  onNavigate={onNavigate}
-                  onClose={() => setShowProfileDropdown(false)}
-                  onLogout={onLogout}
-                  currentPage={currentPage}
-                />
+                  Daftar Users
+                </button>
               )}
+              <div className="relative" ref={profileRef}>
+                <button
+                  onMouseEnter={() => setShowProfileDropdown(true)}
+                  onClick={() => setShowProfileDropdown(!showProfileDropdown)}
+                  className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded-xl transition-colors group"
+                >
+                  <div
+                    className={`w-9 h-9 rounded-full flex items-center justify-center ${
+                      currentPage === "services"
+                        ? "bg-linear-to-br from-orange-400 to-orange-600"
+                        : "bg-linear-to-br from-green-400 to-green-600"
+                    }`}
+                  >
+                    <User size={18} className="text-white" />
+                  </div>
+                  <div className="hidden group-hover:block text-left">
+                    <p className="text-xs font-semibold text-gray-900">
+                      {currentUser?.name || "John"}
+                    </p>
+                    <p className="text-xs text-gray-500">View Profile</p>
+                  </div>
+                </button>
+                {showProfileDropdown && (
+                  <ProfileDropdown
+                    currentUser={currentUser}
+                    onNavigate={onNavigate}
+                    onClose={() => setShowProfileDropdown(false)}
+                    onLogout={onLogout}
+                    currentPage={currentPage}
+                  />
+                )}
+              </div>
             </div>
           ) : (
             <>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Mail, Lock, User, Eye, EyeOff } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const AutofillStyle = () => (
   <style jsx>{`
@@ -19,6 +19,7 @@ const AutofillStyle = () => (
 
 const AuthScreen = ({ mode = "login", onBack, onAuthSuccess }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [authTab, setAuthTab] = useState(mode);
   const [showPassword, setShowPassword] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
@@ -40,6 +41,22 @@ const AuthScreen = ({ mode = "login", onBack, onAuthSuccess }) => {
       navigate("/");
     }
   }, [navigate]);
+
+  // Sync authTab with route changes
+  useEffect(() => {
+    const currentMode = location.pathname === "/signup" ? "signup" : "login";
+    setAuthTab(currentMode);
+    // Reset form when switching between login/signup
+    setFormData({
+      name: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    });
+    setError("");
+    setAgreedToTerms(false);
+    setShowPassword(false);
+  }, [location.pathname]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
