@@ -17,7 +17,6 @@ import Seller from "./pages/seller";
 import DaftarSeller from "./pages/daftar_seller";
 import NotFound from "./pages/NotFound";
 
-// --- MOCK DATA ---
 const mockProducts = [
   {
     id: 5,
@@ -199,9 +198,7 @@ const affiliatedBulletin = {
   color: "bg-gradient-to-r from-red-500 to-orange-500",
   icon: "🧠",
 };
-// --- END MOCK DATA ---
 
-// --- GLOBAL STATE & HELPER COMPONENTS ---
 function App() {
   const navigateRouter = useNavigate();
   const location = useLocation();
@@ -215,17 +212,14 @@ function App() {
   const [showLoginPopup, setShowLoginPopup] = useState(false);
   const [scrollY, setScrollY] = useState(0);
 
-  // Get current page from URL
   const currentPage = location.pathname.substring(1) || "home";
 
   const navigate = (page, item = null) => {
-    // Only show loading for auth and seller pages
     if (page === "login" || page === "signup" || page === "daftar_seller") {
       setIsLoading(true);
     }
     setSelectedItem(item);
 
-    // Use React Router navigation
     setTimeout(
       () => {
         navigateRouter(`/${page}`);
@@ -238,12 +232,10 @@ function App() {
     );
   };
 
-  // Fetch fresh profile when navigating to profile (if token present)
   useEffect(() => {
     const fetchProfile = async () => {
       const token = localStorage.getItem('unily_token');
       if (!token) {
-        // Not authenticated - redirect to auth
         setCurrentPage('auth');
         return;
       }
@@ -252,7 +244,6 @@ function App() {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) {
-          // Token might be invalid - clear and redirect to auth
           localStorage.removeItem('unily_token');
           localStorage.removeItem('unily_user');
           setCurrentUser(null);
@@ -274,7 +265,6 @@ function App() {
     }
   }, [currentPage]);
 
-  // Restore sesi user dari localStorage
   useEffect(() => {
     const saved = localStorage.getItem("unily_user");
     if (saved) {
@@ -285,45 +275,37 @@ function App() {
       }
     }
 
-    // Sistem popup bervariasi - selang-seling setiap jam
     const now = Date.now();
     const oneHour = 60 * 60 * 1000;
 
-    // Cek popup mana yang terakhir ditampilkan
     const lastPopupType = localStorage.getItem("last_popup_type");
     const lastPopupTime = localStorage.getItem("last_popup_time");
 
-    // Jika sudah lewat 1 jam dari popup terakhir
     if (!lastPopupTime || now - parseInt(lastPopupTime) > oneHour) {
       setTimeout(() => {
-        // Jika user belum login dan popup terakhir bukan login, tampilkan login popup
         if (!saved && lastPopupType !== "login") {
           setShowLoginPopup(true);
           localStorage.setItem("last_popup_type", "login");
           localStorage.setItem("last_popup_time", now.toString());
         }
-        // Jika user sudah login atau popup terakhir adalah login, tampilkan bulletin
         else if (saved || lastPopupType === "login") {
           setShowBulletinPopup(true);
           localStorage.setItem("last_popup_type", "bulletin");
           localStorage.setItem("last_popup_time", now.toString());
         }
-        // Default: tampilkan bulletin untuk user baru
         else {
           setShowBulletinPopup(true);
           localStorage.setItem("last_popup_type", "bulletin");
           localStorage.setItem("last_popup_time", now.toString());
         }
-      }, 2000); // Show after 2 seconds
+      }, 2000);
     }
   }, []);
 
-  // Scroll detection for login popup
   useEffect(() => {
     const handleScroll = () => {
       setScrollY(window.scrollY);
 
-      // Show login popup if user scrolls more than 1000px without login
       if (!currentUser && window.scrollY > 1000 && !showLoginPopup) {
         const hasShownScrollPopup = sessionStorage.getItem(
           "shown_scroll_login_popup"
@@ -344,7 +326,6 @@ function App() {
       const query = searchValue.toLowerCase().trim();
       if (!query) return;
 
-      // Navigate to search results page
       setSearchText(query);
       navigate("search-results");
     }
@@ -362,26 +343,11 @@ function App() {
     alert(`Item "${item.name}" berhasil ditambahkan ke keranjang!`);
   };
 
-  const handleAddService = (serviceData) => {
-    const { name, price, ...rest } = serviceData;
-    const newService = {
-      id: Date.now(),
-      type: "Service",
-      rating: 5.0,
-      name: name?.trim() || "Jasa Mahasiswa",
-      price: Number(price) || 0,
-      ...rest,
-    };
-    setServices((prev) => [newService, ...prev]);
-    alert(`Jasa "${newService.name}" berhasil ditambahkan!`);
-  };
-
   const handleAuthSuccess = (user) => {
     localStorage.setItem("unily_user", JSON.stringify(user));
     setCurrentUser(user);
     setShowLoginPopup(false);
 
-    // Reset popup timer setelah user login
     localStorage.setItem("last_popup_type", "login");
     localStorage.setItem("last_popup_time", Date.now().toString());
 
@@ -394,11 +360,9 @@ function App() {
     navigateRouter("/login");
   };
 
-  // --- RENDER UTAMA ---
   const hideNavbar =
     location.pathname === "/login" || location.pathname === "/signup" || location.pathname === "/daftar_seller";
 
-  // Close cart when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (showCart && !event.target.closest(".cart-dropdown")) {
@@ -415,7 +379,6 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* Navbar - Hidden on auth pages */}
       {!hideNavbar && currentPage !== "seller" && (
         <Navbar
           currentUser={currentUser}
@@ -431,12 +394,10 @@ function App() {
         />
       )}
 
-      {/* Primary Navigation - Hidden on auth pages and seller page */}
       {!hideNavbar && currentPage !== "seller" && (
         <PrimaryNav currentPage={currentPage} onNavigate={navigate} />
       )}
 
-      {/* Konten Halaman */}
       <div className="grow">
         <Routes>
           <Route
@@ -532,7 +493,7 @@ function App() {
               />
             }
           />
-          <Route path="/seller" element={<Seller onNavigate={navigate} />} />
+          <Route path="/seller" element={<Seller onNavigate={navigate} currentUser={currentUser} />} />
           <Route
             path="/daftar_seller"
             element={<DaftarSeller onNavigate={navigate} />}
@@ -543,7 +504,6 @@ function App() {
 
       {!hideNavbar && currentPage !== "seller" && <Footer />}
 
-      {/* Popups */}
       {showBulletinPopup && (
         <BulletinPopup onClose={() => setShowBulletinPopup(false)} />
       )}
