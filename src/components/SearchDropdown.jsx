@@ -28,12 +28,12 @@ const SearchDropdown = ({
     <>
       {/* Dark overlay backdrop */}
       <div
-        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100]"
+        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-100"
         style={{ top: "60px" }}
       />
 
       {/* Dropdown content */}
-      <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-2xl border border-gray-200 max-h-[500px] overflow-y-auto z-[101]">
+      <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-2xl border border-gray-200 max-h-[500px] overflow-y-auto z-101">
         {isLoading ? (
           <LoadingSkeleton />
         ) : (

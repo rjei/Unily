@@ -166,8 +166,8 @@ const AuthScreen = ({ mode = "login", onBack, onAuthSuccess }) => {
       <div
         className={`absolute inset-0 ${
           isLogin
-            ? "bg-gradient-to-r from-[oklch(0.5_0.18_40)]/70 via-black/50 to-[oklch(0.4_0.15_140)]/70"
-            : "bg-gradient-to-r from-[oklch(0.4_0.15_140)]/70 via-black/50 to-[oklch(0.5_0.18_40)]/70"
+            ? "bg-linear-to-r from-[oklch(0.5_0.18_40)]/70 via-black/50 to-[oklch(0.4_0.15_140)]/70"
+            : "bg-linear-to-r from-[oklch(0.4_0.15_140)]/70 via-black/50 to-[oklch(0.5_0.18_40)]/70"
         }`}
       ></div>
 

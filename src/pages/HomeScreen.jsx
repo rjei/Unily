@@ -64,7 +64,7 @@ const HomeScreen = ({
     <main className="w-full">
       {/* Hero Section with Full Slide */}
       <div
-        className={`relative w-full h-[600px] bg-linear-to-br ${slides[currentSlide].bgColor} overflow-hidden transition-all duration-1000`}
+        className={`relative w-full h-[800px] bg-linear-to-br ${slides[currentSlide].bgColor} overflow-hidden transition-all duration-1000`}
       >
         {/* Background Image Overlay */}
         <div
@@ -139,17 +139,17 @@ const HomeScreen = ({
               </button>
             </div>
 
-            {/* Right Side - Image/Mascot */}
-            <div className="relative flex items-center justify-center">
+            {/* Right Side - Image/Mascot and Bulletin Card */}
+            <div className="relative flex flex-col items-center justify-between h-full">
               {/* Decorative Background Circle */}
               <div className="absolute inset-0 bg-white/20 rounded-full blur-3xl scale-75"></div>
 
               {/* Image/Mascot with Center Padding - Larger Size */}
-              <div className="relative z-10 px-20 py-16">
+              <div className="relative z-10 px-20 py-8">
                 <img
                   src={slides[currentSlide].image}
                   alt={slides[currentSlide].title}
-                  className="w-[480px] h-[480px] object-contain rounded-2xl"
+                  className="w-[480px] h-[360px] object-contain rounded-2xl"
                   style={{
                     filter:
                       currentSlide === 0
@@ -161,59 +161,57 @@ const HomeScreen = ({
                   }}
                 />
               </div>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      {/* Bulletin Card - Positioned below hero section */}
-      <div className="container mx-auto px-8 mb-8 relative z-10 pt-8">
-        <div className="max-w-sm ml-auto bg-white/95 backdrop-blur-sm rounded-2xl p-5 shadow-xl">
-          <h3 className="text-base font-bold text-gray-800 mb-2">
-            {slides[currentSlide].title} {slides[currentSlide].subtitle}
-          </h3>
-          <p className="text-xs text-gray-600 mb-4">
-            {slides[currentSlide].description}
-          </p>
+              {/* Bulletin Card - Inside Hero Section */}
+              <div className="relative z-10 bg-white/95 backdrop-blur-sm rounded-2xl p-5 shadow-xl w-full max-w-sm">
+                <h3 className="text-base font-bold text-gray-800 mb-2">
+                  {slides[currentSlide].title} {slides[currentSlide].subtitle}
+                </h3>
+                <p className="text-xs text-gray-600 mb-4">
+                  {slides[currentSlide].description}
+                </p>
 
-          {/* Features List */}
-          <div className="space-y-2 mb-4">
-            {slides[currentSlide].features.map((feature, idx) => (
-              <div
-                key={idx}
-                className="flex items-center text-xs text-gray-700"
-              >
-                <div className="w-5 h-5 rounded-full bg-[oklch(0.4_0.15_140)]/20 flex items-center justify-center mr-2">
-                  <svg
-                    className="w-3 h-3 text-[oklch(0.4_0.15_140)]"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
+                {/* Features List */}
+                <div className="space-y-2 mb-4">
+                  {slides[currentSlide].features.map((feature, idx) => (
+                    <div
+                      key={idx}
+                      className="flex items-center text-xs text-gray-700"
+                    >
+                      <div className="w-5 h-5 rounded-full bg-[oklch(0.4_0.15_140)]/20 flex items-center justify-center mr-2">
+                        <svg
+                          className="w-3 h-3 text-[oklch(0.4_0.15_140)]"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </div>
+                      <span className="font-medium">{feature}</span>
+                    </div>
+                  ))}
                 </div>
-                <span className="font-medium">{feature}</span>
-              </div>
-            ))}
-          </div>
 
-          {/* Slide Indicators - More Visible */}
-          <div className="flex justify-center gap-2">
-            {slides.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentSlide(index)}
-                className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
-                  index === currentSlide
-                    ? "bg-[oklch(0.4_0.15_140)] w-8"
-                    : "bg-gray-300 hover:bg-gray-400 w-2"
-                }`}
-              />
-            ))}
+                {/* Slide Indicators - More Visible */}
+                <div className="flex justify-center gap-2">
+                  {slides.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentSlide(index)}
+                      className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
+                        index === currentSlide
+                          ? "bg-[oklch(0.4_0.15_140)] w-8"
+                          : "bg-gray-300 hover:bg-gray-400 w-2"
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

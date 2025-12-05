@@ -24,20 +24,20 @@ const ProfileDropdown = ({
     <>
       {/* Dark overlay backdrop */}
       <div
-        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100]"
+        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-100"
         style={{ top: "60px" }}
         onClick={onClose}
       />
 
       {/* Dropdown content - Compact 2-column layout with onMouseLeave */}
       <div
-        className="absolute right-0 top-12 w-[420px] bg-white border border-gray-200 rounded-xl shadow-2xl z-[101]"
+        className="absolute right-0 top-12 w-[420px] bg-white border border-gray-200 rounded-xl shadow-2xl z-101"
         onMouseLeave={onClose}
       >
         {/* Header - User Info with Avatar */}
         <div className="p-4 border-b border-gray-100 flex items-center gap-3">
           <div
-            className={`w-10 h-10 rounded-full ${iconColor} flex items-center justify-center flex-shrink-0`}
+            className={`w-10 h-10 rounded-full ${iconColor} flex items-center justify-center shrink-0`}
           >
             <span className="text-white text-lg font-bold">
               {currentUser?.name?.charAt(0) || "U"}
