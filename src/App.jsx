@@ -233,6 +233,17 @@ function App() {
     );
   };
 
+  const setIsSellerStatus = (isSellerStatus) => {
+    setCurrentUser(prevUser => {
+        if (prevUser) {
+            const updatedUser = { ...prevUser, isSeller: isSellerStatus };
+            localStorage.setItem("unily_user", JSON.stringify(updatedUser));
+            return updatedUser;
+        }
+        return prevUser;
+    });
+  };
+
   useEffect(() => {
     const fetchProfile = async () => {
       const token = localStorage.getItem('unily_token');
@@ -396,7 +407,7 @@ function App() {
       )}
 
       {!hideNavbar && currentPage !== "seller" && (
-        <PrimaryNav currentPage={currentPage} onNavigate={navigate} />
+        <PrimaryNav currentPage={currentPage} onNavigate={navigate} currentUser={currentUser} />
       )}
 
       <div className="grow">
@@ -497,7 +508,7 @@ function App() {
           <Route path="/seller" element={<Seller onNavigate={navigate} currentUser={currentUser} />} />
           <Route
             path="/daftar_seller"
-            element={
+             element={
               <DaftarSeller
                 onNavigate={navigate}
                 onBecomeSeller={(user) => {
@@ -508,16 +519,6 @@ function App() {
                     console.error('Failed to update currentUser after becoming seller', err);
                   }
                 }}
-              />
-            }
-          />
-          <Route
-            path="/admin/users"
-            element={
-              <AdminUsersPanel
-                onNavigate={navigate}
-                onLogout={handleLogout}
-                currentUser={currentUser}
               />
             }
           />
