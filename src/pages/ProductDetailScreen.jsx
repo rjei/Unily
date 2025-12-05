@@ -7,6 +7,7 @@ import {
   MessageCircle,
   X,
   Home,
+  Share2,
 } from "lucide-react";
 
 const ProductDetailScreen = ({
@@ -83,7 +84,6 @@ const ProductDetailScreen = ({
           className="hover:text-[oklch(0.4_0.15_140)] flex items-center gap-1"
         >
           <Home size={16} />
-          <span>Beranda</span>
         </button>
         <ChevronRight size={16} className="mx-2" />
         <button
@@ -182,6 +182,104 @@ const ProductDetailScreen = ({
                 </p>
               </div>
             )}
+          </div>
+
+          {/* Reviews Section */}
+          <div className="mt-8">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold text-gray-900">
+                Ulasan ({selectedItem.rating} dari 5)
+              </h3>
+              <button className="text-[oklch(0.4_0.15_140)] hover:text-[oklch(0.35_0.15_140)] font-semibold text-sm">
+                Lihat Semua
+              </button>
+            </div>
+
+            {/* Review Summary */}
+            <div className="grid grid-cols-3 gap-4 mb-6">
+              <div className="bg-gray-50 p-4 rounded-lg text-center">
+                <div className="text-2xl font-bold text-gray-900">
+                  {selectedItem.rating}
+                </div>
+                <div className="flex items-center justify-center text-yellow-500 mt-1">
+                  {[...Array(5)].map((_, i) => (
+                    <Star
+                      key={i}
+                      size={14}
+                      fill={
+                        i < Math.floor(selectedItem.rating)
+                          ? "currentColor"
+                          : "none"
+                      }
+                    />
+                  ))}
+                </div>
+                <p className="text-xs text-gray-600 mt-1">Dari 95 ulasan</p>
+              </div>
+
+              {/* Rating Distribution */}
+              <div className="col-span-2 space-y-2">
+                {[5, 4, 3, 2, 1].map((rating) => (
+                  <div key={rating} className="flex items-center gap-2">
+                    <span className="text-xs text-gray-600 w-8">{rating}★</span>
+                    <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-yellow-500 rounded-full"
+                        style={{ width: `${100 - rating * 10}%` }}
+                      ></div>
+                    </div>
+                    <span className="text-xs text-gray-600 w-8 text-right">
+                      {95 - rating * 10}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Sample Reviews */}
+            <div className="space-y-4 border-t pt-4">
+              {[1, 2].map((review) => (
+                <div key={review} className="pb-4 border-b last:border-b-0">
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-full bg-[oklch(0.4_0.15_140)] flex items-center justify-center text-white text-sm font-bold">
+                      {review === 1 ? "I" : "R"}
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between mb-1">
+                        <p className="font-semibold text-sm text-gray-900">
+                          {review === 1 ? "Irfan Pratama" : "Rizky Ananda"}
+                        </p>
+                        <span className="text-xs text-gray-500">
+                          2 hari lalu
+                        </span>
+                      </div>
+                      <div className="flex gap-1 mb-1">
+                        {[...Array(5)].map((_, i) => (
+                          <Star
+                            key={i}
+                            size={12}
+                            fill={
+                              i < (review === 1 ? 5 : 4)
+                                ? "currentColor"
+                                : "none"
+                            }
+                            className="text-yellow-500"
+                          />
+                        ))}
+                      </div>
+                      <p className="text-sm text-gray-700 mb-2">
+                        {review === 1
+                          ? "Produk bagus, packaging rapi. Cepat sampai!"
+                          : "Kualitasnya lumayan, sesuai harga."}
+                      </p>
+                      <button className="text-xs text-gray-500 hover:text-gray-700">
+                        Helpful? (2)
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -297,10 +395,16 @@ const ProductDetailScreen = ({
                 </button>
               </div>
 
-              <button className="w-full py-3 border-2 border-[oklch(0.4_0.15_140)] text-[oklch(0.4_0.15_140)] rounded-lg font-semibold hover:bg-green-50 transition-colors flex items-center justify-center gap-2">
-                <MessageCircle size={20} />
-                Chat
-              </button>
+              <div className="flex gap-2">
+                <button className="flex-1 py-3 border-2 border-[oklch(0.4_0.15_140)] text-[oklch(0.4_0.15_140)] rounded-lg font-semibold hover:bg-green-50 transition-colors flex items-center justify-center gap-2">
+                  <MessageCircle size={20} />
+                  Chat
+                </button>
+                <button className="flex-1 py-3 border-2 border-[oklch(0.4_0.15_140)] text-[oklch(0.4_0.15_140)] rounded-lg font-semibold hover:bg-green-50 transition-colors flex items-center justify-center gap-2">
+                  <Share2 size={20} />
+                  Bagikan
+                </button>
+              </div>
             </div>
           </div>
         </div>

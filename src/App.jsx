@@ -12,7 +12,7 @@ import ServicesScreen from "./pages/ServicesScreen";
 import ProductDetailScreen from "./pages/ProductDetailScreen";
 import SearchResultsScreen from "./pages/SearchResultsScreen";
 import AuthScreen from "./pages/AuthScreen";
-import ProfileScreen from "./pages/ProfileScreen";
+import ProfileSettingsScreen from "./pages/ProfileSettingsScreen";
 import Seller from "./pages/seller";
 import DaftarSeller from "./pages/daftar_seller";
 import NotFound from "./pages/NotFound";
@@ -36,6 +36,10 @@ const mockProducts = [
       "https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=800",
       "https://images.unsplash.com/photo-1532298229144-0ec0c57515c7?w=800",
     ],
+    seller: {
+      name: "Budi Santoso",
+      avatar: null,
+    },
   },
   {
     id: 1,
@@ -55,6 +59,10 @@ const mockProducts = [
       "https://images.unsplash.com/photo-1495121605193-b116b5b9c5fe?w=800",
       "https://images.unsplash.com/photo-1588846570983-c6f3bd489f6f?w=800",
     ],
+    seller: {
+      name: "Andi Wijaya",
+      avatar: null,
+    },
   },
   {
     id: 2,
@@ -74,6 +82,10 @@ const mockProducts = [
       "https://images.unsplash.com/photo-1593642532973-d31b6557fa68?w=800",
       "https://images.unsplash.com/photo-1484788984921-03950022c9ef?w=800",
     ],
+    seller: {
+      name: "Siti Rahmawati",
+      avatar: null,
+    },
   },
   {
     id: 3,
@@ -93,6 +105,10 @@ const mockProducts = [
       "https://images.unsplash.com/photo-1589003077984-894e133dabab?w=800",
       "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=800",
     ],
+    seller: {
+      name: "BEM USU",
+      avatar: null,
+    },
   },
   {
     id: 4,
@@ -112,6 +128,10 @@ const mockProducts = [
       "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=800",
       "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=800",
     ],
+    seller: {
+      name: "Dian Pertiwi",
+      avatar: null,
+    },
   },
 ];
 
@@ -124,7 +144,6 @@ const mockServices = [
     location: "Fasilkom",
     rating: 4.9,
     type: "Service",
-    seller: "Studio Kretif",
     desc: "Desain poster event kampus, UKM, atau tugas kelompok. Cepat dan revisi 2x.",
     image: "https://images.unsplash.com/photo-1626785774573-4b799315345d?w=800",
     images: [
@@ -133,6 +152,10 @@ const mockServices = [
       "https://images.unsplash.com/photo-1572044162444-ad60f128bdea?w=800",
       "https://images.unsplash.com/photo-1609921212029-bb5a28e60960?w=800",
     ],
+    seller: {
+      name: "Studio Kreatif",
+      avatar: null,
+    },
   },
   {
     id: 102,
@@ -142,7 +165,6 @@ const mockServices = [
     location: "FIB",
     rating: 4.7,
     type: "Service",
-    seller: "Layanan Bahasa",
     desc: "Proofreading grammar, dikerjakan oleh mahasiswa Sastra Inggris berpengalaman.",
     image: "https://images.unsplash.com/photo-1455390582262-044cdead277a?w=800",
     images: [
@@ -151,6 +173,10 @@ const mockServices = [
       "https://images.unsplash.com/photo-1471107340929-a87cd0f5b5f3?w=800",
       "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800",
     ],
+    seller: {
+      name: "Layanan Bahasa",
+      avatar: null,
+    },
   },
   {
     id: 103,
@@ -160,7 +186,6 @@ const mockServices = [
     location: "FT",
     rating: 5.0,
     type: "Service",
-    seller: "Mentor IT",
     desc: "Bimbingan private HTML, CSS, JavaScript, dan ReactJS.",
     image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800",
     images: [
@@ -169,6 +194,10 @@ const mockServices = [
       "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800",
       "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800",
     ],
+    seller: {
+      name: "Mentor IT",
+      avatar: null,
+    },
   },
   {
     id: 104,
@@ -178,7 +207,6 @@ const mockServices = [
     location: "F. Vokasi",
     rating: 4.6,
     type: "Service",
-    seller: "Video Creative",
     desc: "Jasa edit video profesional untuk tugas akhir atau vlog.",
     image: "https://images.unsplash.com/photo-1536240478700-b869070f9279?w=800",
     images: [
@@ -187,6 +215,10 @@ const mockServices = [
       "https://images.unsplash.com/photo-1492619375914-88005aa9e8fb?w=800",
       "https://images.unsplash.com/photo-1579047440656-e5c0f2900ca4?w=800",
     ],
+    seller: {
+      name: "Video Creative",
+      avatar: null,
+    },
   },
 ];
 
@@ -234,33 +266,33 @@ function App() {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      const token = localStorage.getItem('unily_token');
+      const token = localStorage.getItem("unily_token");
       if (!token) {
-        setCurrentPage('auth');
+        setCurrentPage("auth");
         return;
       }
       try {
-        const res = await fetch('http://localhost:5000/api/users/me', {
+        const res = await fetch("http://localhost:5000/api/users/me", {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) {
-          localStorage.removeItem('unily_token');
-          localStorage.removeItem('unily_user');
+          localStorage.removeItem("unily_token");
+          localStorage.removeItem("unily_user");
           setCurrentUser(null);
-          setCurrentPage('auth');
+          setCurrentPage("auth");
           return;
         }
         const body = await res.json();
         if (body && body.user) {
-          localStorage.setItem('unily_user', JSON.stringify(body.user));
+          localStorage.setItem("unily_user", JSON.stringify(body.user));
           setCurrentUser(body.user);
         }
       } catch (err) {
-        console.error('Failed to fetch profile:', err);
+        console.error("Failed to fetch profile:", err);
       }
     };
 
-    if (currentPage === 'profile') {
+    if (currentPage === "profile") {
       fetchProfile();
     }
   }, [currentPage]);
@@ -287,13 +319,11 @@ function App() {
           setShowLoginPopup(true);
           localStorage.setItem("last_popup_type", "login");
           localStorage.setItem("last_popup_time", now.toString());
-        }
-        else if (saved || lastPopupType === "login") {
+        } else if (saved || lastPopupType === "login") {
           setShowBulletinPopup(true);
           localStorage.setItem("last_popup_type", "bulletin");
           localStorage.setItem("last_popup_time", now.toString());
-        }
-        else {
+        } else {
           setShowBulletinPopup(true);
           localStorage.setItem("last_popup_type", "bulletin");
           localStorage.setItem("last_popup_time", now.toString());
@@ -361,7 +391,9 @@ function App() {
   };
 
   const hideNavbar =
-    location.pathname === "/login" || location.pathname === "/signup" || location.pathname === "/daftar_seller";
+    location.pathname === "/login" ||
+    location.pathname === "/signup" ||
+    location.pathname === "/daftar_seller";
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -391,6 +423,8 @@ function App() {
           onSearch={handleSearch}
           allProducts={mockProducts}
           allServices={mockServices}
+          onLogout={handleLogout}
+          currentPage={currentPage}
         />
       )}
 
@@ -484,16 +518,18 @@ function App() {
             }
           />
           <Route
-            path="/profile"
+            path="/profile-settings"
             element={
-              <ProfileScreen
-                user={currentUser}
+              <ProfileSettingsScreen
+                currentUser={currentUser}
                 onNavigate={navigate}
-                onLogout={handleLogout}
               />
             }
           />
-          <Route path="/seller" element={<Seller onNavigate={navigate} currentUser={currentUser} />} />
+          <Route
+            path="/seller"
+            element={<Seller onNavigate={navigate} currentUser={currentUser} />}
+          />
           <Route
             path="/daftar_seller"
             element={
@@ -501,10 +537,13 @@ function App() {
                 onNavigate={navigate}
                 onBecomeSeller={(user) => {
                   try {
-                    localStorage.setItem('unily_user', JSON.stringify(user));
+                    localStorage.setItem("unily_user", JSON.stringify(user));
                     setCurrentUser(user);
                   } catch (err) {
-                    console.error('Failed to update currentUser after becoming seller', err);
+                    console.error(
+                      "Failed to update currentUser after becoming seller",
+                      err
+                    );
                   }
                 }}
               />

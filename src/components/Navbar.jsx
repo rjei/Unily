@@ -10,6 +10,7 @@ import {
   Settings,
 } from "lucide-react";
 import SearchDropdown from "./SearchDropdown";
+import ProfileDropdown from "./ProfileDropdown";
 
 const Navbar = ({
   currentUser,
@@ -22,12 +23,16 @@ const Navbar = ({
   onSearch,
   allProducts,
   allServices,
+  onLogout,
+  currentPage,
 }) => {
   const [activeTab, setActiveTab] = useState("transaksi");
   const [showSearchDropdown, setShowSearchDropdown] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchResults, setSearchResults] = useState(null);
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const searchRef = useRef(null);
+  const profileRef = useRef(null);
 
   // Mock stores data
   const mockStores = [
@@ -67,6 +72,9 @@ const Navbar = ({
     const handleClickOutside = (event) => {
       if (searchRef.current && !searchRef.current.contains(event.target)) {
         setShowSearchDropdown(false);
+      }
+      if (profileRef.current && !profileRef.current.contains(event.target)) {
+        setShowProfileDropdown(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -169,6 +177,7 @@ const Navbar = ({
               results={searchResults}
               onSelectItem={handleSelectItem}
               onViewAll={handleViewAll}
+              currentPage={currentPage}
             />
           )}
         </div>
@@ -250,6 +259,29 @@ const Navbar = ({
                             <p className="text-sm text-gray-600 mb-3">
                               Menunggu Pembayaran
                             </p>
+                            
+                            {/* Display Latest Order */}
+                            {cart.length > 0 && (
+                              <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-100">
+                                <p className="text-xs font-semibold text-gray-700 mb-2">Order Terbaru:</p>
+                                <div className="flex items-center gap-2 mb-2">
+                                  <img 
+                                    src={cart[0].image} 
+                                    alt={cart[0].name}
+                                    className="w-10 h-10 rounded object-cover"
+                                  />
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-xs font-medium text-gray-900 truncate">{cart[0].name}</p>
+                                    <p className="text-xs text-gray-600">Rp {cart[0].price?.toLocaleString('id-ID')}</p>
+                                  </div>
+                                </div>
+                                <div className="text-xs text-gray-600 space-y-1">
+                                  <p><span className="font-medium">Tanggal:</span> {cart[0].checkoutDate}</p>
+                                  <p><span className="font-medium">Status:</span> <span className="text-orange-600 font-semibold">{cart[0].status}</span></p>
+                                </div>
+                              </div>
+                            )}
+                            
                             {/* Status Icons */}
                             <div className="grid grid-cols-4 gap-2 mb-4">
                               <button className="flex flex-col items-center p-2 hover:bg-gray-50 rounded-lg">
@@ -358,12 +390,38 @@ const Navbar = ({
             )}
           </div>
           {currentUser ? (
-            <button
-              onClick={() => onNavigate("profile")}
-              className="bg-gray-900 text-white px-5 py-2 rounded-xl text-sm font-medium hover:bg-gray-800 transition-colors"
-            >
-              Profil
-            </button>
+            <div className="relative" ref={profileRef}>
+              <button
+                onMouseEnter={() => setShowProfileDropdown(true)}
+                onClick={() => setShowProfileDropdown(!showProfileDropdown)}
+                className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded-xl transition-colors group"
+              >
+                <div
+                  className={`w-9 h-9 rounded-full flex items-center justify-center ${
+                    currentPage === "services"
+                      ? "bg-linear-to-br from-orange-400 to-orange-600"
+                      : "bg-linear-to-br from-green-400 to-green-600"
+                  }`}
+                >
+                  <User size={18} className="text-white" />
+                </div>
+                <div className="hidden group-hover:block text-left">
+                  <p className="text-xs font-semibold text-gray-900">
+                    {currentUser?.name || "John"}
+                  </p>
+                  <p className="text-xs text-gray-500">View Profile</p>
+                </div>
+              </button>
+              {showProfileDropdown && (
+                <ProfileDropdown
+                  currentUser={currentUser}
+                  onNavigate={onNavigate}
+                  onClose={() => setShowProfileDropdown(false)}
+                  onLogout={onLogout}
+                  currentPage={currentPage}
+                />
+              )}
+            </div>
           ) : (
             <>
               <button
@@ -374,7 +432,7 @@ const Navbar = ({
               </button>
               <button
                 onClick={() => onNavigate("signup")}
-                className="bg-gray-900 text-white px-5 py-2 rounded-xl text-sm font-medium hover:bg-gray-800 transition-colors"
+                className="bg-[oklch(0.4_0.15_140)] text-white px-5 py-2 rounded-xl text-sm font-medium hover:bg-[oklch(0.35_0.15_140)] transition-colors"
               >
                 Daftar
               </button>

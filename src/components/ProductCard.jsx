@@ -52,6 +52,28 @@ const ProductCard = ({ item, onClick, showOfficial = false }) => {
         )}
       </div>
       <div className="p-4 grow flex flex-col">
+        {/* Seller Info */}
+        {item.seller && (
+          <div className="flex items-center gap-2 mb-3 pb-2 border-b border-gray-100">
+            <div className="w-6 h-6 rounded-full bg-[oklch(0.4_0.15_140)] flex items-center justify-center text-white text-xs font-bold overflow-hidden">
+              {item.seller.avatar ? (
+                <img
+                  src={item.seller.avatar}
+                  alt={item.seller.name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                item.seller.name.charAt(0).toUpperCase()
+              )}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-medium text-gray-700 truncate">
+                {item.seller.name}
+              </p>
+            </div>
+          </div>
+        )}
+
         <h3 className="text-base font-semibold truncate text-gray-800 mb-1">
           {item.name}
         </h3>

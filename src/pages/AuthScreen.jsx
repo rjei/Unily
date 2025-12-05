@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Mail, Lock, User, Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -30,6 +30,16 @@ const AuthScreen = ({ mode = "login", onBack, onAuthSuccess }) => {
     password: "",
     confirmPassword: "",
   });
+
+  // Redirect logged-in users to home
+  useEffect(() => {
+    const token = localStorage.getItem("unily_token");
+    const user = localStorage.getItem("unily_user");
+
+    if (token && user) {
+      navigate("/");
+    }
+  }, [navigate]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -125,7 +135,9 @@ const AuthScreen = ({ mode = "login", onBack, onAuthSuccess }) => {
         onBack();
       }
     } catch (err) {
-      setError(err.message || `Terjadi kesalahan saat ${isLogin ? "login" : "signup"}`);
+      setError(
+        err.message || `Terjadi kesalahan saat ${isLogin ? "login" : "signup"}`
+      );
       console.error("Auth error:", err);
     } finally {
       setLoading(false);
@@ -150,8 +162,23 @@ const AuthScreen = ({ mode = "login", onBack, onAuthSuccess }) => {
         />
       </video>
 
-      {/* Dark Overlay */}
-      <div className="absolute inset-0 bg-linear-to-br from-[oklch(0.4_0.15_140)]/30 via-[oklch(0.35_0.15_140)]/40 to-gray-900/70"></div>
+      {/* Gradient Overlay - Different for Login vs Signup */}
+      <div
+        className={`absolute inset-0 ${
+          isLogin
+            ? "bg-gradient-to-r from-[oklch(0.5_0.18_40)]/70 via-black/50 to-[oklch(0.4_0.15_140)]/70"
+            : "bg-gradient-to-r from-[oklch(0.4_0.15_140)]/70 via-black/50 to-[oklch(0.5_0.18_40)]/70"
+        }`}
+      ></div>
+
+      {/* Grain Texture Overlay */}
+      <div
+        className="absolute inset-0 opacity-[0.15] pointer-events-none"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+          backgroundRepeat: "repeat",
+        }}
+      ></div>
 
       {/* Auth Card - Centered with Blur */}
       <div className="relative z-10 w-full max-w-md bg-white/10 backdrop-blur-2xl rounded-3xl shadow-2xl overflow-hidden p-10 border border-white/20 transition-all duration-500">
@@ -310,7 +337,7 @@ const AuthScreen = ({ mode = "login", onBack, onAuthSuccess }) => {
             <p className="text-white/80 text-sm">
               Belum punya akun?{" "}
               <button
-                onClick={() => navigate("/signup")}
+                onClick={() => setAuthTab("signup")}
                 className="text-[oklch(0.7_0.15_140)] font-semibold hover:text-white transition-colors underline"
               >
                 Daftar
@@ -320,7 +347,7 @@ const AuthScreen = ({ mode = "login", onBack, onAuthSuccess }) => {
             <p className="text-white/80 text-sm">
               Punya akun?{" "}
               <button
-                onClick={() => navigate("/login")}
+                onClick={() => setAuthTab("login")}
                 className="text-[oklch(0.7_0.15_140)] font-semibold hover:text-white transition-colors underline"
               >
                 Masuk

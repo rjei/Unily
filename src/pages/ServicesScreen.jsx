@@ -139,40 +139,22 @@ const ServicesScreen = ({ services, onNavigate, onAddService }) => {
     }
   };
 
+  // Filter to show only first 4 services with official tag
+  const displayedServices = services.slice(0, 4);
+
   return (
     <main className="container mx-auto max-w-7xl px-4 py-8">
       <h1 className="mb-8 text-3xl font-bold text-gray-800">
         Pusat Jasa Mahasiswa
       </h1>
 
-      <div className="mb-8 flex items-center justify-between rounded-xl border border-orange-300 bg-orange-100 p-6">
-        <p className="text-lg font-medium text-orange-800">
-          Butuh jasa desain, tutor, atau proofreading cepat? Temukan pakar
-          kampusmu di sini.
-        </p>
-        <button
-          onClick={() => setShowForm(true)}
-          className="rounded-full bg-orange-500 px-6 py-2 font-medium text-white transition hover:bg-orange-600"
-        >
-          Tawarkan Jasamu
-        </button>
-      </div>
-
       <div className="grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-4">
-        {services.map((item, index) => (
+        {displayedServices.map((item) => (
           <ProductCard
             key={item.id}
             item={item}
             onClick={() => onNavigate("details", item)}
-            showOfficial={index === 0}
-          />
-        ))}
-        {services.map((item, index) => (
-          <ProductCard
-            key={item.id + 100}
-            item={item}
-            onClick={() => onNavigate("details", item)}
-            showOfficial={false}
+            showOfficial={true}
           />
         ))}
       </div>
@@ -194,5 +176,3 @@ const ServicesScreen = ({ services, onNavigate, onAddService }) => {
 };
 
 export default ServicesScreen;
-
-

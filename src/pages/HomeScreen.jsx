@@ -18,7 +18,7 @@ const HomeScreen = ({
       title: "Sewa dan Jual",
       subtitle: "Khusus Kampus",
       description: "Temukan kebutuhan fisik & skill terverifikasi",
-      bgColor: "from-green-100 via-emerald-50 to-teal-50",
+      bgColor: "from-white via-gray-50 to-gray-100",
       image: "/mascot.png",
       fallback: "https://i.imgur.com/8yQzVqS.png",
       features: [
@@ -32,7 +32,7 @@ const HomeScreen = ({
       subtitle: "Siap Tempur UTS/UAS?",
       description:
         "Dapatkan mentor terbaik dari fakultasmu. Daftar sekarang untuk les intensif!",
-      bgColor: "from-blue-100 via-cyan-50 to-sky-50",
+      bgColor: "from-white via-gray-50 to-gray-100",
       image:
         "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600",
       fallback:
@@ -44,7 +44,7 @@ const HomeScreen = ({
       subtitle: "Terpercaya",
       description:
         "Unily menghubungkan mahasiswa dengan barang & jasa yang dibutuhkan dalam satu platform aman",
-      bgColor: "from-purple-100 via-violet-50 to-indigo-50",
+      bgColor: "from-white via-gray-50 to-gray-100",
       image:
         "https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?w=600",
       fallback:
@@ -76,8 +76,8 @@ const HomeScreen = ({
         ></div>
 
         {/* Content Container */}
-        <div className="relative container mx-auto px-8 py-16 h-full">
-          <div className="grid grid-cols-2 gap-8 items-center h-full">
+        <div className="relative container mx-auto px-12 py-16 h-full max-w-7xl">
+          <div className="grid grid-cols-2 gap-16 items-center h-full">
             {/* Left Side - Text and Stats with Slide Transition */}
             <div key={currentSlide} className="animate-fadeIn">
               {/* Hero Text */}
@@ -124,9 +124,14 @@ const HomeScreen = ({
               {/* CTA Button */}
               <button
                 onClick={() => {
-                  const searchInput =
-                    document.querySelector('input[type="text"]');
-                  if (searchInput) searchInput.focus();
+                  const productsSection =
+                    document.getElementById("products-section");
+                  if (productsSection) {
+                    productsSection.scrollIntoView({
+                      behavior: "smooth",
+                      block: "start",
+                    });
+                  }
                 }}
                 className="bg-[oklch(0.4_0.15_140)] hover:opacity-80 text-white font-bold text-base px-6 py-3 rounded-full shadow-2xl transition-opacity duration-300"
               >
@@ -139,12 +144,12 @@ const HomeScreen = ({
               {/* Decorative Background Circle */}
               <div className="absolute inset-0 bg-white/20 rounded-full blur-3xl scale-75"></div>
 
-              {/* Image/Mascot with Padding */}
-              <div className="relative z-10 bg-white/40 backdrop-blur-sm rounded-3xl p-8 shadow-2xl">
+              {/* Image/Mascot with Center Padding - Larger Size */}
+              <div className="relative z-10 px-20 py-16">
                 <img
                   src={slides[currentSlide].image}
                   alt={slides[currentSlide].title}
-                  className="w-80 h-80 object-contain rounded-2xl"
+                  className="w-[480px] h-[480px] object-contain rounded-2xl"
                   style={{
                     filter:
                       currentSlide === 0
@@ -162,7 +167,7 @@ const HomeScreen = ({
       </div>
 
       {/* Bulletin Card - Positioned below hero section */}
-      <div className="container mx-auto px-8 -mt-20 mb-8 relative z-0">
+      <div className="container mx-auto px-8 mb-8 relative z-10 pt-8">
         <div className="max-w-sm ml-auto bg-white/95 backdrop-blur-sm rounded-2xl p-5 shadow-xl">
           <h3 className="text-base font-bold text-gray-800 mb-2">
             {slides[currentSlide].title} {slides[currentSlide].subtitle}
@@ -202,7 +207,7 @@ const HomeScreen = ({
               <button
                 key={index}
                 onClick={() => setCurrentSlide(index)}
-                className={`h-2 rounded-full transition-all duration-300 ${
+                className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
                   index === currentSlide
                     ? "bg-[oklch(0.4_0.15_140)] w-8"
                     : "bg-gray-300 hover:bg-gray-400 w-2"
@@ -215,7 +220,7 @@ const HomeScreen = ({
 
       {/* Rest of Content */}
       <div className="container mx-auto px-4 py-8 max-w-7xl">
-        <section className="mb-16">
+        <section className="mb-16" id="products-section">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-3xl font-bold text-gray-800 flex items-center">
               <LayoutList
@@ -224,14 +229,8 @@ const HomeScreen = ({
               />{" "}
               Barang Sewa & Jual Terpopuler
             </h2>
-            <button
-              onClick={() => onNavigate("home")}
-              className="text-[oklch(0.4_0.15_140)] flex items-center hover:text-[oklch(0.35_0.15_140)] font-medium"
-            >
-              Lihat Semua Barang <ChevronRight size={18} />
-            </button>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
             {products.slice(0, 3).map((item) => (
               <ProductCard
                 key={item.id}
@@ -240,6 +239,14 @@ const HomeScreen = ({
                 showOfficial={true}
               />
             ))}
+          </div>
+          <div className="flex justify-center">
+            <button
+              onClick={() => onNavigate("home")}
+              className="px-8 py-3 bg-white border-2 border-[oklch(0.4_0.15_140)] text-[oklch(0.4_0.15_140)] rounded-full font-semibold hover:bg-[oklch(0.4_0.15_140)] hover:text-white transition-all shadow-md"
+            >
+              Muat Lebih Banyak
+            </button>
           </div>
         </section>
       </div>

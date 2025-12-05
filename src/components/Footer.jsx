@@ -105,7 +105,7 @@ const Footer = () => (
                 href="#"
                 className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
               >
-                Marketplace & Sewa
+                Marketplace, Sewa & Pinjam
               </a>
             </li>
             <li>
@@ -113,7 +113,7 @@ const Footer = () => (
                 href="#"
                 className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
               >
-                Services Hub (Jasa)
+                Pusat Layanan
               </a>
             </li>
             <li>
@@ -168,7 +168,7 @@ const Footer = () => (
 
           {/* Copyright */}
           <div className="text-sm text-gray-500">
-            <p>© 2009 - 2025, PT. Unily. All Rights Reserved.</p>
+            <p>©2025 Unily, All Rights Reserved.</p>
           </div>
         </div>
       </div>

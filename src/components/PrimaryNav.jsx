@@ -8,8 +8,13 @@ const PrimaryNav = ({ currentPage, onNavigate }) => {
       ? ["Jasa Desain", "Tutor Privat", "Editing", "Proofreading", "Bulletin"]
       : ["Elektronik", "Buku", "Olahraga", "Jasa Les", "Bulletin"];
 
+  const isServicesPage = currentPage === "services";
+  const bgColor = isServicesPage
+    ? "bg-linear-to-r from-orange-600 via-orange-500 to-orange-600"
+    : "bg-linear-to-r from-[oklch(0.45_0.15_140)] via-[oklch(0.4_0.15_140)] to-[oklch(0.35_0.15_140)]";
+
   return (
-    <div className="bg-linear-to-r from-[oklch(0.45_0.15_140)] via-[oklch(0.4_0.15_140)] to-[oklch(0.35_0.15_140)] shadow-sm sticky top-[60px] z-50">
+    <div className={`${bgColor} shadow-sm sticky top-[60px] z-50`}>
       <div className="container mx-auto">
         <div className="flex items-center justify-between px-2">
           {/* Left - Mulai Berjualan */}
@@ -17,7 +22,7 @@ const PrimaryNav = ({ currentPage, onNavigate }) => {
             onClick={() => onNavigate("daftar_seller")}
             className="text-sm font-semibold text-white/90 hover:text-white rounded-lg py-2.5 px-4 transition-all duration-300"
           >
-            Mulai Berjualan
+            {isServicesPage ? "Tawarkan Jasamu" : "Mulai Berjualan"}
           </button>
 
           {/* Center - Main Navigation */}
@@ -31,7 +36,7 @@ const PrimaryNav = ({ currentPage, onNavigate }) => {
               }`}
             >
               <LayoutList size={16} className="inline-block mr-1.5" />
-              Marketplace & Borrowing
+              Marketplace, Sewa & Pinjam
             </button>
             <button
               onClick={() => onNavigate("services")}
@@ -42,7 +47,7 @@ const PrimaryNav = ({ currentPage, onNavigate }) => {
               }`}
             >
               <Briefcase size={16} className="inline-block mr-1.5" />
-              Services Hub
+              Pusat Jasa
             </button>
           </div>
 

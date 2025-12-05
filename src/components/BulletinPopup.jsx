@@ -101,7 +101,7 @@ const BulletinPopup = ({ onClose }) => {
         </button>
 
         <div className="relative">
-          <div className="w-full h-64 bg-linear-to-br from-gray-100 to-gray-200 overflow-hidden relative">
+          <div className="w-full h-64 bg-white overflow-hidden relative">
             <img
               src={slides[currentSlide].image}
               alt={slides[currentSlide].title}
