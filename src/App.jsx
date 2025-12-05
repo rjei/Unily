@@ -396,7 +396,7 @@ function App() {
 
   // --- RENDER UTAMA ---
   const hideNavbar =
-    location.pathname === "/login" || location.pathname === "/signup";
+    location.pathname === "/login" || location.pathname === "/signup" || location.pathname === "/daftar_seller";
 
   // Close cart when clicking outside
   useEffect(() => {
