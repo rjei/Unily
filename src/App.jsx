@@ -252,7 +252,9 @@ function App() {
         return;
       }
       try {
-        const res = await fetch('http://localhost:5000/api/users/me', {
+        const apiBaseUrl = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:5000' : '');
+        const apiUrl = apiBaseUrl ? `${apiBaseUrl}/api/users/me` : '/api/users/me';
+        const res = await fetch(apiUrl, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) {

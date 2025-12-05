@@ -17,7 +17,9 @@ const AdminUsersPanel = ({ onNavigate, onLogout, currentUser }) => {
         return;
       }
 
-      const res = await fetch('http://localhost:5000/api/users', {
+      const apiBaseUrl = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:5000' : '');
+      const apiUrl = apiBaseUrl ? `${apiBaseUrl}/api/users` : '/api/users';
+      const res = await fetch(apiUrl, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -45,7 +47,9 @@ const AdminUsersPanel = ({ onNavigate, onLogout, currentUser }) => {
 
     try {
       const token = localStorage.getItem('unily_token');
-      const res = await fetch(`http://localhost:5000/api/users/${userId}`, {
+      const apiBaseUrl = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:5000' : '');
+      const apiUrl = apiBaseUrl ? `${apiBaseUrl}/api/users/${userId}` : `/api/users/${userId}`;
+      const res = await fetch(apiUrl, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -82,7 +86,9 @@ const AdminUsersPanel = ({ onNavigate, onLogout, currentUser }) => {
     setEditLoading(true);
     try {
       const token = localStorage.getItem('unily_token');
-      const res = await fetch(`http://localhost:5000/api/users/${editingUser.id}`, {
+      const apiBaseUrl = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:5000' : '');
+      const apiUrl = apiBaseUrl ? `${apiBaseUrl}/api/users/${editingUser.id}` : `/api/users/${editingUser.id}`;
+      const res = await fetch(apiUrl, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

@@ -28,7 +28,9 @@ function daftar_seller({ onNavigate = () => {}, onBecomeSeller = () => {} }) {
     (async () => {
       try {
         // API call to become seller
-        const res = await fetch('http://localhost:5000/api/sellers/become', {
+        const apiBaseUrl = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:5000' : '');
+        const apiUrl = apiBaseUrl ? `${apiBaseUrl}/api/sellers/become` : '/api/sellers/become';
+        const res = await fetch(apiUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

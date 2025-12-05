@@ -100,7 +100,9 @@ const AuthScreen = ({ mode = "login", onBack, onAuthSuccess }) => {
             password: formData.password,
           };
 
-      const response = await fetch(`http://localhost:5000/api${endpoint}`, {
+      const apiBaseUrl = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:5000' : '');
+      const apiUrl = apiBaseUrl ? `${apiBaseUrl}/api${endpoint}` : `/api${endpoint}`;
+      const response = await fetch(apiUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

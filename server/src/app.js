@@ -10,12 +10,20 @@ const errorHandler = require('./middleware/errorHandler');
 const createApp = () => {
   const app = express();
 
+  // CORS configuration for Vercel deployment
+  // On Vercel, frontend and backend share the same domain, so we can be more permissive
   const corsOptions = config.clientOrigin
     ? {
-        origin: config.clientOrigin,
+        origin: config.clientOrigin.includes(',') 
+          ? config.clientOrigin.split(',').map(origin => origin.trim())
+          : config.clientOrigin,
         credentials: true,
       }
-    : {};
+    : {
+        // In production on Vercel (same domain) or development, allow all origins
+        origin: true,
+        credentials: true,
+      };
 
   app.use(cors(corsOptions));
   app.use(express.json());
