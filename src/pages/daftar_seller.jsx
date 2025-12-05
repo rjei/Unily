@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 
-function daftar_seller({ onNavigate = () => {} }) {
+function daftar_seller({ onNavigate = () => {}, onBecomeSeller = () => {} }) {
   const [view, setView] = useState('home')
   const [showPassword, setShowPassword] = useState(false)
   const [items, setItems] = useState([])
@@ -15,13 +15,51 @@ function daftar_seller({ onNavigate = () => {} }) {
   const showDashboard = view === 'dashboard' 
 
   const handleRegisterClick = () => {
-    setPlayCount(0)
-    setShowMascotWave(true)
+    const token = localStorage.getItem('unily_token');
+    if (!token) {
+      onNavigate('login');
+      return;
+    }
+
+    (async () => {
+      try {
+        const res = await fetch('http://localhost:5000/api/sellers/become', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}));
+          const msg = body && body.message ? body.message : 'Gagal mendaftar sebagai penjual';
+          alert(msg);
+          return;
+        }
+
+        const body = await res.json();
+        const newUser = body.user;
+        if (newUser) {
+          localStorage.setItem('unily_user', JSON.stringify(newUser));
+          try {
+            onBecomeSeller(newUser);
+          } catch (err) {
+            // ignore if parent doesn't implement
+          }
+        }
+
+        setPlayCount(0);
+        setShowMascotWave(true);
+      } catch (err) {
+        console.error('Error becoming seller', err);
+        alert('Terjadi kesalahan saat mendaftar sebagai penjual.');
+      }
+    })();
   }
 
   useEffect(() => {
     if (showMascotWave) {
-      // try to play when modal opens
       setTimeout(() => {
         if (videoRef.current) {
           videoRef.current.currentTime = 0

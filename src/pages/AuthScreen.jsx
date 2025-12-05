@@ -22,6 +22,8 @@ const AuthScreen = ({ mode = "login", onBack, onAuthSuccess }) => {
   const [authTab, setAuthTab] = useState(mode);
   const [showPassword, setShowPassword] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -49,7 +51,7 @@ const AuthScreen = ({ mode = "login", onBack, onAuthSuccess }) => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!isFormValid()) return;
 
@@ -68,19 +70,65 @@ const AuthScreen = ({ mode = "login", onBack, onAuthSuccess }) => {
       return;
     }
 
-    console.log(`Mengirim data ${authTab}...`, formData);
+    setError("");
+    setLoading(true);
 
-    const mockUser = {
-      id: Date.now(),
-      name: formData.name || "Pengguna",
-      email: formData.email,
-    };
+    try {
+      const endpoint = isLogin ? "/auth/login" : "/auth/signup";
+      const body = isLogin
+        ? { email: formData.email, password: formData.password }
+        : {
+            name: formData.name,
+            email: formData.email,
+            password: formData.password,
+          };
 
-    alert(`Sukses ${authTab}!`);
-    if (typeof onAuthSuccess === "function") {
-      onAuthSuccess(mockUser);
-    } else {
-      onBack();
+      const response = await fetch(`http://localhost:5000/api${endpoint}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        const message =
+          data.details && Array.isArray(data.details)
+            ? data.details.join("; ")
+            : data.message || "Terjadi kesalahan";
+        throw new Error(message);
+      }
+
+      // Simpan token jika ada
+      if (data.token) {
+        localStorage.setItem("unily_token", data.token);
+      }
+
+      // Simpan user data
+      const user = {
+        id: data.user.id,
+        name: data.user.name,
+        email: data.user.email,
+        role: data.user.role || "pelanggan",
+      };
+
+      if (data.user) {
+        localStorage.setItem("unily_user", JSON.stringify(user));
+      }
+
+      // Panggil callback success
+      if (typeof onAuthSuccess === "function") {
+        onAuthSuccess(user);
+      } else {
+        onBack();
+      }
+    } catch (err) {
+      setError(err.message || `Terjadi kesalahan saat ${isLogin ? "login" : "signup"}`);
+      console.error("Auth error:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -224,17 +272,24 @@ const AuthScreen = ({ mode = "login", onBack, onAuthSuccess }) => {
             </div>
           )}
 
+          {/* Error Message */}
+          {error && (
+            <div className="bg-red-500/20 border border-red-500/50 text-red-200 text-sm px-4 py-3 rounded-xl">
+              {error}
+            </div>
+          )}
+
           {/* Submit Button */}
           <button
             type="submit"
-            disabled={!isFormValid()}
+            disabled={!isFormValid() || loading}
             className={`w-full font-bold py-3 rounded-xl text-sm tracking-wide uppercase transition-all mt-2 shadow-lg ${
-              isFormValid()
+              isFormValid() && !loading
                 ? "bg-[oklch(0.4_0.15_140)] text-white hover:bg-[oklch(0.35_0.15_140)] transform hover:-translate-y-0.5 cursor-pointer"
                 : "bg-white/20 text-white/40 cursor-not-allowed"
             }`}
           >
-            {isLogin ? "MASUK" : "DAFTAR"}
+            {loading ? "Memproses..." : isLogin ? "MASUK" : "DAFTAR"}
           </button>
 
           {isLogin && (
