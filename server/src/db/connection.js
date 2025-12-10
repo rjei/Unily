@@ -1,18 +1,30 @@
 const { Pool } = require("pg");
 const config = require("../config");
 
-// Pool PostgreSQL pakai config resmi
-const pool = new Pool({
-  host: config.dbHost,
-  port: config.dbPort,
-  database: config.dbName,
-  user: config.dbUser,
-  password: config.dbPassword,
-});
+// Pool PostgreSQL - support DATABASE_URL atau individual vars
+const poolConfig = config.databaseUrl
+  ? {
+      connectionString: config.databaseUrl,
+      ssl: {
+        rejectUnauthorized: false, // Required untuk Supabase
+      },
+    }
+  : {
+      host: config.dbHost,
+      port: config.dbPort,
+      database: config.dbName,
+      user: config.dbUser,
+      password: config.dbPassword,
+    };
+
+const pool = new Pool(poolConfig);
 
 // Logging
 pool.on("connect", () => {
-  console.log(`✅ PostgreSQL Connected → ${config.dbHost}:${config.dbPort}/${config.dbName}`);
+  const dbInfo = config.databaseUrl
+    ? `DATABASE_URL (${config.dbHost})`
+    : `${config.dbHost}:${config.dbPort}/${config.dbName}`;
+  console.log(`✅ PostgreSQL Connected → ${dbInfo}`);
 });
 
 pool.on("error", (err) => {
