@@ -1,0 +1,1 @@
+# Frontend Dockerfile\nFROM node:20-alpine\n\n# Set working directory\nWORKDIR /app\n\n# Copy package files\nCOPY package*.json ./\n\n# Install dependencies\nRUN npm ci\n\n# Copy application files\nCOPY . .\n\n# Expose port\nEXPOSE 5173\n\n# Start development server\nCMD [\"npm\", \"run\", \"dev\", \"--\", \"--host\", \"0.0.0.0\"]\n

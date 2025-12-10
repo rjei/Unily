@@ -1,0 +1,91 @@
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:16
+    container_name: unily_postgres
+    environment:
+      POSTGRES_USER: superadmin
+      POSTGRES_PASSWORD: passwordAdmin123
+      POSTGRES_DB: unily_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d
+    networks:
+      - unily_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U superadmin"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend API Server
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: unily_backend
+    env_file:
+      - ./server/.env
+    environment:
+      NODE_ENV: development
+      PORT: 4000
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: unily_db
+      DB_USER: superadmin
+      DB_PASSWORD: passwordAdmin123
+      DATABASE_URL: postgresql://superadmin:passwordAdmin123@db:5432/unily_db
+      CLIENT_ORIGIN: http://localhost:5173
+    ports:
+      - "4000:4000"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - unily_network
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+    command: sh -c "./wait-for-postgres.sh db npm run dev"
+
+  # Frontend (Development)
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: unily_frontend
+    env_file:
+      - .env
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    networks:
+      - unily_network
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm run dev -- --host
+
+  # PgAdmin for Database Management
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: unily_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@unily.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - db
+    networks:
+      - unily_network
+
+networks:
+  unily_network:
+    driver: bridge
+
+volumes:
+  pgdata:

@@ -16,7 +16,7 @@ const TikTokIcon = ({ size = 20 }) => (
 );
 
 const Footer = () => (
-  <footer className="bg-gray-50/50 border-t border-gray-100 pt-12 pb-6 mt-16">
+  <footer className="bg-gray-50/50 border-t border-gray-100 pt-12 pb-6 px-12 mt-16">
     <div className="container mx-auto px-4">
       {/* Main Footer Content */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
@@ -138,28 +138,28 @@ const Footer = () => (
             </span>
             <a
               href="#"
-              className="text-gray-500 hover:text-gray-900 transition-colors"
+              className="text-gray-500 hover:text-gray-900 transition-colors cursor-pointer"
               aria-label="X (Twitter)"
             >
               <XIcon size={18} />
             </a>
             <a
               href="#"
-              className="text-gray-500 hover:text-gray-900 transition-colors"
+              className="text-gray-500 hover:text-pink-600 transition-colors cursor-pointer"
               aria-label="Instagram"
             >
               <Instagram size={18} />
             </a>
             <a
               href="#"
-              className="text-gray-500 hover:text-gray-900 transition-colors"
+              className="text-gray-500 hover:text-gray-900 transition-colors cursor-pointer"
               aria-label="TikTok"
             >
               <TikTokIcon size={18} />
             </a>
             <a
               href="#"
-              className="text-gray-500 hover:text-gray-900 transition-colors"
+              className="text-gray-500 hover:text-red-500 transition-colors cursor-pointer"
               aria-label="YouTube"
             >
               <Youtube size={18} />
@@ -167,7 +167,8 @@ const Footer = () => (
           </div>
 
           {/* Copyright */}
-          <div className="text-sm text-gray-500">
+          <div className="flex items-center gap-2 text-sm text-gray-500">
+            <span className="text-gray-300">|</span>
             <p>©2025 Unily, All Rights Reserved.</p>
           </div>
         </div>

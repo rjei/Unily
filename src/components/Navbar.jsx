@@ -1,26 +1,19 @@
 import React, { useState, useEffect, useRef } from "react";
-import {
-  Bell,
-  Search,
-  User,
-  Clock,
-  Package,
-  Truck,
-  MapPin,
-  Settings,
-} from "lucide-react";
-import SearchDropdown from "./SearchDropdown";
-import ProfileDropdown from "./ProfileDropdown";
+// 1. IMPORT Link & useNavigate DARI ROUTER
+import { Link, useNavigate } from "react-router-dom";
+import { Bell, Search, MessageCircle, Heart } from "lucide-react";
+import SearchDropdown from "./navbar/SearchDropdown";
+import ProfileDropdown from "./navbar/ProfileDropdown";
+import NotificationDropdown from "./navbar/NotificationDropdown";
+import MessagesDropdown from "./navbar/MessagesDropdown";
 
 const Navbar = ({
   currentUser,
-  onNavigate,
   cart,
   showCart,
   setShowCart,
   searchText,
   setSearchText,
-  onSearch,
   allProducts,
   allServices,
   onLogout,
@@ -31,8 +24,15 @@ const Navbar = ({
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchResults, setSearchResults] = useState(null);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+  const [showMessagesDropdown, setShowMessagesDropdown] = useState(false);
+
   const searchRef = useRef(null);
   const profileRef = useRef(null);
+  const cartRef = useRef(null);
+  const messagesRef = useRef(null);
+
+  // 2. INITIALIZE HOOK NAVIGATE
+  const navigate = useNavigate();
 
   // Mock stores data
   const mockStores = [
@@ -70,23 +70,32 @@ const Navbar = ({
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (searchRef.current && !searchRef.current.contains(event.target)) {
+      if (
+        searchRef.current &&
+        !searchRef.current.contains(event.target) &&
+        !profileRef.current?.contains(event.target) &&
+        !cartRef.current?.contains(event.target) &&
+        !messagesRef.current?.contains(event.target)
+      ) {
         setShowSearchDropdown(false);
       }
-      if (profileRef.current && !profileRef.current.contains(event.target)) {
-        setShowProfileDropdown(false);
+      if (cartRef.current && !cartRef.current.contains(event.target)) {
+        setShowCart(false);
+      }
+      if (messagesRef.current && !messagesRef.current.contains(event.target)) {
+        setShowMessagesDropdown(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, [setShowCart]);
 
   useEffect(() => {
-    if (searchText.trim().length > 0) {
+    // Defensive check untuk searchText
+    if ((searchText || "").trim().length > 0) {
       setSearchLoading(true);
       setShowSearchDropdown(true);
 
-      // Simulate search delay
       const timer = setTimeout(() => {
         const query = searchText.toLowerCase();
         const filteredStores = mockStores.filter((store) =>
@@ -97,8 +106,8 @@ const Navbar = ({
           ...(allServices || []),
         ].filter(
           (item) =>
-            item.name.toLowerCase().includes(query) ||
-            item.desc?.toLowerCase().includes(query)
+            (item.name || "").toLowerCase().includes(query) ||
+            (item.desc || "").toLowerCase().includes(query)
         );
 
         setSearchResults({
@@ -114,12 +123,18 @@ const Navbar = ({
       setShowSearchDropdown(false);
       setSearchResults(null);
     }
-  }, [searchText]);
+  }, [searchText, allProducts, allServices]);
 
-  const handleSearchKeyPress = (e) => {
-    if (e.key === "Enter" && searchText.trim()) {
+  // 3. FIX FUNGSI SEARCH
+  const handleSearch = (e) => {
+    e.preventDefault();
+    // Gunakan searchText (state), bukan searchQuery
+    const term = (searchText || "").trim();
+
+    if (term) {
+      navigate(`/search?q=${encodeURIComponent(term)}`);
       setShowSearchDropdown(false);
-      onSearch(e, searchText);
+      setSearchText("");
     }
   };
 
@@ -127,24 +142,24 @@ const Navbar = ({
     setShowSearchDropdown(false);
     setSearchText("");
     if (type === "product") {
-      onNavigate("details", item);
+      navigate(`/marketplace/detail/${item.id}`);
     } else if (type === "store") {
-      // Navigate to store page
-      onNavigate("search-results", null, item.name);
+      navigate(`/search?store=${encodeURIComponent(item.name)}`);
     }
   };
 
   const handleViewAll = () => {
     setShowSearchDropdown(false);
-    onSearch(null, searchText);
+    navigate(`/search?q=${encodeURIComponent(searchText)}`);
   };
 
   return (
-    <nav className="bg-white px-4 py-3 border-b border-gray-100 sticky top-0 z-50">
+    <nav className="bg-white px-4 md:px-16 py-3 border-b border-gray-100 fixed w-full top-0 z-40 shadow-sm">
       <div className="container mx-auto flex items-center justify-between gap-4">
-        <button
-          onClick={() => onNavigate("home")}
-          className="flex items-center space-x-3 hover:opacity-80 transition-opacity"
+        {/* LOGO - Ganti button jadi Link */}
+        <Link
+          to="/"
+          className="flex items-center space-x-3 hover:opacity-80 transition-opacity shrink-0"
         >
           <img
             src="/logo.png"
@@ -152,25 +167,37 @@ const Navbar = ({
             className="h-12 w-12 object-contain"
           />
           <span className="text-2xl font-bold text-gray-900">Unily</span>
-        </button>
+        </Link>
 
-        {/* Search Bar with Dropdown */}
+        {/* Search Bar */}
         <div className="flex-1 max-w-2xl relative" ref={searchRef}>
-          <div className="relative">
+          <form onSubmit={handleSearch} className="relative" role="search">
+            <label htmlFor="global-search" className="sr-only">
+              Cari produk, toko, atau jasa
+            </label>
             <Search
-              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 z-10"
+              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"
               size={18}
+              aria-hidden="true"
             />
             <input
-              type="text"
+              id="global-search"
+              type="search"
               placeholder="Cari produk, toko, atau jasa..."
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
-              onKeyPress={handleSearchKeyPress}
-              onFocus={() => searchText.trim() && setShowSearchDropdown(true)}
-              className="w-full pl-10 pr-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white focus:border-gray-300 focus:shadow-sm transition-all placeholder:text-gray-400"
+              onKeyDown={(e) => e.key === "Enter" && handleSearch(e)}
+              onFocus={() =>
+                (searchText || "").trim() && setShowSearchDropdown(true)
+              }
+              aria-label="Cari produk, toko, atau jasa"
+              aria-autocomplete="list"
+              aria-controls="search-results"
+              aria-expanded={showSearchDropdown}
+              className="w-full pl-10 pr-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white focus:border-gray-300 transition-all placeholder:text-gray-400"
             />
-          </div>
+          </form>
+
           {showSearchDropdown && (
             <SearchDropdown
               isLoading={searchLoading}
@@ -182,266 +209,130 @@ const Navbar = ({
           )}
         </div>
 
+        {/* Right Icons */}
         <div className="flex items-center space-x-2">
-          <div className="relative cart-dropdown">
-            <button
-              onClick={() => setShowCart(!showCart)}
-              className="p-2.5 hover:bg-gray-50 rounded-xl transition-colors relative"
-              aria-label="notifications"
+          {/* Wishlist */}
+          {currentUser && (
+            <Link
+              to="/wishlist"
+              className="p-2.5 hover:bg-red-50 rounded-xl transition-colors relative focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+              aria-label="Wishlist"
             >
-              <Bell size={20} className="text-gray-600" />
-              {cart.length > 0 && (
+              <Heart size={20} className="text-gray-600 hover:text-red-500" />
+            </Link>
+          )}
+
+          {/* Cart/Notifications */}
+          <div
+            className="relative"
+            ref={cartRef}
+            onMouseEnter={() => setShowCart(true)}
+            onMouseLeave={() => setShowCart(false)}
+          >
+            <button
+              aria-label={`Notifikasi${
+                (cart || []).length > 0
+                  ? `, ${(cart || []).length} notifikasi baru`
+                  : ""
+              }`}
+              aria-haspopup="true"
+              aria-expanded={showCart}
+              className="p-2.5 hover:bg-orange-100 rounded-xl transition-colors relative focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
+            >
+              <Bell
+                size={20}
+                className="cursor-pointer text-gray-600 hover:text-orange-600"
+                aria-hidden="true"
+              />
+              {/* Defensive check cart.length */}
+              {(cart || []).length > 0 && (
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">
-                  {cart.length}
+                  {(cart || []).length}
                 </span>
               )}
             </button>
             {showCart && (
-              <div className="absolute right-0 top-12 w-96 bg-white border border-gray-100 rounded-xl shadow-2xl z-50">
-                {/* Header dengan Tab dan Settings */}
-                <div className="flex items-center justify-between p-4 border-b border-gray-100">
-                  <h3 className="font-bold text-gray-900 text-base">
-                    Notifikasi
-                  </h3>
-                  <button className="text-gray-400 hover:text-gray-600 p-1 hover:bg-gray-50 rounded-lg transition-colors">
-                    <Settings size={18} />
-                  </button>
-                </div>
-
-                {/* Tab Transaksi dan Update */}
-                <div className="flex border-b border-gray-100">
-                  <button
-                    onClick={() => setActiveTab("transaksi")}
-                    className={`flex-1 py-3 text-sm font-semibold transition-colors ${
-                      activeTab === "transaksi"
-                        ? "text-[oklch(0.4_0.15_140)] border-b-2 border-[oklch(0.4_0.15_140)]"
-                        : "text-gray-500 hover:text-gray-700"
-                    }`}
-                  >
-                    Transaksi
-                  </button>
-                  <button
-                    onClick={() => setActiveTab("update")}
-                    className={`flex-1 py-3 text-sm font-semibold transition-colors relative ${
-                      activeTab === "update"
-                        ? "text-[oklch(0.4_0.15_140)] border-b-2 border-[oklch(0.4_0.15_140)]"
-                        : "text-gray-500 hover:text-gray-700"
-                    }`}
-                  >
-                    Update
-                  </button>
-                </div>
-
-                {/* Konten Tab */}
-                <div className="max-h-[500px] overflow-y-auto">
-                  {activeTab === "transaksi" ? (
-                    <div>
-                      {/* Pembelian Section */}
-                      <div className="p-4">
-                        <div className="flex justify-between items-center mb-3">
-                          <h4 className="font-semibold text-gray-800">
-                            Pembelian
-                          </h4>
-                          <a
-                            href="#"
-                            className="text-sm text-green-600 hover:text-green-700 font-medium"
-                          >
-                            Lihat Semua
-                          </a>
-                        </div>
-
-                        {cart.length === 0 ? (
-                          <div className="text-center py-4 text-gray-500 text-sm">
-                            Menunggu Pembayaran
-                          </div>
-                        ) : (
-                          <div className="mb-4">
-                            <p className="text-sm text-gray-600 mb-3">
-                              Menunggu Pembayaran
-                            </p>
-
-                            {/* Display Latest Order */}
-                            {cart.length > 0 && (
-                              <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-100">
-                                <p className="text-xs font-semibold text-gray-700 mb-2">
-                                  Order Terbaru:
-                                </p>
-                                <div className="flex items-center gap-2 mb-2">
-                                  <img
-                                    src={cart[0].image}
-                                    alt={cart[0].name}
-                                    className="w-10 h-10 rounded object-cover"
-                                  />
-                                  <div className="flex-1 min-w-0">
-                                    <p className="text-xs font-medium text-gray-900 truncate">
-                                      {cart[0].name}
-                                    </p>
-                                    <p className="text-xs text-gray-600">
-                                      Rp{" "}
-                                      {cart[0].price?.toLocaleString("id-ID")}
-                                    </p>
-                                  </div>
-                                </div>
-                                <div className="text-xs text-gray-600 space-y-1">
-                                  <p>
-                                    <span className="font-medium">
-                                      Tanggal:
-                                    </span>{" "}
-                                    {cart[0].checkoutDate}
-                                  </p>
-                                  <p>
-                                    <span className="font-medium">Status:</span>{" "}
-                                    <span className="text-orange-600 font-semibold">
-                                      {cart[0].status}
-                                    </span>
-                                  </p>
-                                </div>
-                              </div>
-                            )}
-
-                            {/* Status Icons */}
-                            <div className="grid grid-cols-4 gap-2 mb-4">
-                              <button className="flex flex-col items-center p-2 hover:bg-gray-50 rounded-lg">
-                                <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mb-1">
-                                  <Clock size={20} className="text-gray-600" />
-                                </div>
-                                <span className="text-xs text-gray-700 text-center">
-                                  Menunggu Konfirmasi
-                                </span>
-                              </button>
-                              <button className="flex flex-col items-center p-2 hover:bg-gray-50 rounded-lg">
-                                <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mb-1">
-                                  <Package
-                                    size={20}
-                                    className="text-gray-600"
-                                  />
-                                </div>
-                                <span className="text-xs text-gray-700 text-center">
-                                  Pesanan Diproses
-                                </span>
-                              </button>
-                              <button className="flex flex-col items-center p-2 hover:bg-gray-50 rounded-lg">
-                                <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mb-1">
-                                  <Truck size={20} className="text-gray-600" />
-                                </div>
-                                <span className="text-xs text-gray-700 text-center">
-                                  Sedang Dikirim
-                                </span>
-                              </button>
-                              <button className="flex flex-col items-center p-2 hover:bg-gray-50 rounded-lg">
-                                <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mb-1">
-                                  <MapPin size={20} className="text-gray-600" />
-                                </div>
-                                <span className="text-xs text-gray-700 text-center">
-                                  Sampai Tujuan
-                                </span>
-                              </button>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Penjualan Section */}
-                      <div className="p-4 bg-gray-50/50 border-t border-gray-100">
-                        <h4 className="font-semibold text-gray-900 mb-2 text-sm">
-                          Penjualan
-                        </h4>
-                        <p className="text-xs text-gray-600 mb-3 leading-relaxed">
-                          Cek pesanan yang masuk dan perkembangan tokomu secara
-                          rutin di satu tempat
-                        </p>
-                        <button
-                          onClick={() => {
-                            // Check if user is registered as seller
-                            const isSeller = currentUser?.isSeller || false;
-                            if (isSeller) {
-                              onNavigate("seller");
-                            } else {
-                              onNavigate("daftar_seller");
-                            }
-                            setShowCart(false);
-                          }}
-                          className="w-full py-2.5 px-4 border border-[oklch(0.4_0.15_140)] text-[oklch(0.4_0.15_140)] rounded-lg font-medium hover:bg-[oklch(0.4_0.15_140)]/5 transition-colors text-sm"
-                        >
-                          Masuk ke Unily Seller
-                        </button>
-                      </div>
-
-                      {/* Untuk Kamu Section */}
-                      <div className="p-4 border-t border-gray-200">
-                        <h4 className="font-semibold text-gray-800 mb-3">
-                          Untuk Kamu
-                        </h4>
-                        <div className="flex flex-col items-center justify-center py-8 text-gray-400">
-                          <Package size={48} className="mb-2 opacity-50" />
-                          <p className="text-sm">empty</p>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <a
-                            href="#"
-                            className="text-sm text-green-600 hover:text-green-700 font-medium"
-                          >
-                            Tandai semua dibaca
-                          </a>
-                          <a
-                            href="#"
-                            className="text-sm text-green-600 hover:text-green-700 font-medium"
-                          >
-                            Lihat selengkapnya
-                          </a>
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="p-4">
-                      <div className="flex items-center justify-center py-8 text-gray-400">
-                        <div className="text-center">
-                          <Bell size={48} className="mx-auto mb-2 opacity-50" />
-                          <p className="text-sm">Belum ada update</p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
+              <NotificationDropdown
+                cart={cart}
+                currentUser={currentUser}
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+                onNavigate={(path) =>
+                  navigate(path === "home" ? "/" : `/${path}`)
+                }
+                setShowCart={setShowCart}
+              />
             )}
           </div>
+
+          {/* Messages - Only show if logged in */}
+          {currentUser && (
+            <div
+              className="relative"
+              ref={messagesRef}
+              onMouseEnter={() => setShowMessagesDropdown(true)}
+              onMouseLeave={() => setShowMessagesDropdown(false)}
+            >
+              <button
+                aria-label="Pesan, 1 pesan baru"
+                aria-haspopup="true"
+                aria-expanded={showMessagesDropdown}
+                className="p-2.5 hover:bg-gray-50 rounded-xl transition-colors relative focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
+              >
+                <MessageCircle
+                  size={20}
+                  className="cursor-pointer text-gray-600"
+                  aria-hidden="true"
+                />
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">
+                  1
+                </span>
+              </button>
+              {showMessagesDropdown && (
+                <MessagesDropdown
+                  onClose={() => setShowMessagesDropdown(false)}
+                />
+              )}
+            </div>
+          )}
+
+          {/* User Profile / Login */}
           {currentUser ? (
             <div className="flex items-center gap-3">
               {currentUser.role === "admin" && (
                 <button
-                  onClick={() => onNavigate("admin_users")}
+                  onClick={() => navigate("/admin/users")}
                   className="bg-purple-600 text-white px-5 py-2 rounded-xl text-sm font-medium hover:bg-purple-700 transition-colors"
                 >
                   Daftar Users
                 </button>
               )}
-              <div className="relative" ref={profileRef}>
+              <div
+                className="relative"
+                ref={profileRef}
+                onMouseLeave={() => setShowProfileDropdown(false)}
+              >
                 <button
                   onMouseEnter={() => setShowProfileDropdown(true)}
-                  onClick={() => setShowProfileDropdown(!showProfileDropdown)}
-                  className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded-xl transition-colors group"
+                  onClick={() => navigate("/profile/settings")}
+                  className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded-xl transition-colors"
                 >
                   <div
-                    className={`w-9 h-9 rounded-full flex items-center justify-center ${
+                    className={`w-9 h-9 rounded-full flex items-center justify-center text-white text-base font-bold ${
                       currentPage === "services"
-                        ? "bg-linear-to-br from-orange-400 to-orange-600"
-                        : "bg-linear-to-br from-green-400 to-green-600"
+                        ? "bg-orange-500"
+                        : "bg-[oklch(0.4_0.15_140)]"
                     }`}
                   >
-                    <User size={18} className="text-white" />
-                  </div>
-                  <div className="hidden group-hover:block text-left">
-                    <p className="text-xs font-semibold text-gray-900">
-                      {currentUser?.name || "John"}
-                    </p>
-                    <p className="text-xs text-gray-500">View Profile</p>
+                    {currentUser?.name?.charAt(0) || "U"}
                   </div>
                 </button>
                 {showProfileDropdown && (
                   <ProfileDropdown
                     currentUser={currentUser}
-                    onNavigate={onNavigate}
+                    onNavigate={(path) =>
+                      navigate(path === "home" ? "/" : `/${path}`)
+                    }
                     onClose={() => setShowProfileDropdown(false)}
                     onLogout={onLogout}
                     currentPage={currentPage}
@@ -452,13 +343,13 @@ const Navbar = ({
           ) : (
             <>
               <button
-                onClick={() => onNavigate("login")}
+                onClick={() => navigate("/login")}
                 className="text-gray-700 hover:bg-gray-50 px-4 py-2 rounded-xl text-sm font-medium transition-colors"
               >
                 Masuk
               </button>
               <button
-                onClick={() => onNavigate("signup")}
+                onClick={() => navigate("/signup")}
                 className="bg-[oklch(0.4_0.15_140)] text-white px-5 py-2 rounded-xl text-sm font-medium hover:bg-[oklch(0.35_0.15_140)] transition-colors"
               >
                 Daftar

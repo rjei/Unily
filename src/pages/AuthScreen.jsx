@@ -1,205 +1,55 @@
 import React, { useState, useEffect } from "react";
-import { Mail, Lock, User, Eye, EyeOff } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
+import AuthBackground from "../components/AuthBackground";
+import AuthFormInputs from "../components/AuthFormInputs";
+import ErrorBanner from "../components/common/ErrorBanner";
+import { useAuthForm } from "../hooks/useAuthForm";
 
-const AutofillStyle = () => (
-  <style jsx>{`
-    input:-webkit-autofill,
-    input:-webkit-autofill:hover,
-    input:-webkit-autofill:focus,
-    input:-webkit-autofill:active {
-      -webkit-box-shadow: 0 0 0px 1000px rgba(255, 255, 255, 0.15) inset !important;
-      box-shadow: 0 0 0px 1000px rgba(255, 255, 255, 0.15) inset !important;
-      -webkit-text-fill-color: white !important;
-      caret-color: white !important;
-      transition: background-color 5000s ease-in-out 0s;
-    }
-  `}</style>
-);
-
-const AuthScreen = ({ mode = "login", onBack, onAuthSuccess }) => {
+const AuthScreen = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [authTab, setAuthTab] = useState(mode);
   const [showPassword, setShowPassword] = useState(false);
-  const [agreedToTerms, setAgreedToTerms] = useState(false);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
 
-  // Redirect logged-in users to home
+  const isLogin = location.pathname === "/login";
+
   useEffect(() => {
     const token = localStorage.getItem("unily_token");
-    const user = localStorage.getItem("unily_user");
-
-    if (token && user) {
-      navigate("/");
+    if (token) {
+      navigate("/", { replace: true });
     }
   }, [navigate]);
 
-  // Sync authTab with route changes
-  useEffect(() => {
-    const currentMode = location.pathname === "/signup" ? "signup" : "login";
-    setAuthTab(currentMode);
-    // Reset form when switching between login/signup
-    setFormData({
-      name: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
-    });
-    setError("");
-    setAgreedToTerms(false);
-    setShowPassword(false);
-  }, [location.pathname]);
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const isLogin = authTab === "login";
-
-  const isFormValid = () => {
-    if (isLogin) {
-      return formData.email.trim() !== "" && formData.password.trim() !== "";
-    } else {
-      return (
-        formData.name.trim() !== "" &&
-        formData.email.trim() !== "" &&
-        formData.password.trim() !== "" &&
-        formData.confirmPassword.trim() !== "" &&
-        agreedToTerms
-      );
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!isFormValid()) return;
-
-    if (!isLogin && !agreedToTerms) {
-      alert(
-        "Harap setujui Syarat & Ketentuan serta Kebijakan Privasi terlebih dahulu."
-      );
-      return;
-    }
-
-    if (
-      authTab === "signup" &&
-      formData.password !== formData.confirmPassword
-    ) {
-      alert("Kata sandi dan konfirmasi tidak cocok.");
-      return;
-    }
-
-    setError("");
-    setLoading(true);
-
-    try {
-      const endpoint = isLogin ? "/auth/login" : "/auth/signup";
-      const body = isLogin
-        ? { email: formData.email, password: formData.password }
-        : {
-            name: formData.name,
-            email: formData.email,
-            password: formData.password,
-          };
-
-      const response = await fetch(`http://localhost:5000/api${endpoint}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        const message =
-          data.details && Array.isArray(data.details)
-            ? data.details.join("; ")
-            : data.message || "Terjadi kesalahan";
-        throw new Error(message);
-      }
-
-      // Simpan token jika ada
-      if (data.token) {
-        localStorage.setItem("unily_token", data.token);
-      }
-
-      // Simpan user data
-      const user = {
-        id: data.user.id,
-        name: data.user.name,
-        email: data.user.email,
-        role: data.user.role || "pelanggan",
-      };
-
-      if (data.user) {
-        localStorage.setItem("unily_user", JSON.stringify(user));
-      }
-
-      // Panggil callback success
-      if (typeof onAuthSuccess === "function") {
-        onAuthSuccess(user);
-      } else {
-        onBack();
-      }
-    } catch (err) {
-      setError(
-        err.message || `Terjadi kesalahan saat ${isLogin ? "login" : "signup"}`
-      );
-      console.error("Auth error:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const {
+    formData,
+    loading,
+    error,
+    agreedToTerms,
+    setAgreedToTerms,
+    handleChange,
+    handleSubmit,
+    setError,
+    isFormValid,
+  } = useAuthForm(isLogin, () => navigate("/", { replace: true }));
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center p-4 bg-black relative overflow-hidden">
-      <AutofillStyle />
+      {/* 🔥 FIX: Hapus atribut 'jsx'. Pakai style biasa */}
+      <style>{`
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover,
+        input:-webkit-autofill:focus,
+        input:-webkit-autofill:active {
+          -webkit-box-shadow: 0 0 0px 1000px rgba(255, 255, 255, 0.15) inset !important;
+          box-shadow: 0 0 0px 1000px rgba(255, 255, 255, 0.15) inset !important;
+          -webkit-text-fill-color: white !important;
+          caret-color: white !important;
+          transition: background-color 5000s ease-in-out 0s;
+        }
+      `}</style>
 
-      {/* Video Background */}
-      <video
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="absolute inset-0 w-full h-full object-cover opacity-40"
-      >
-        <source
-          src="https://assets.mixkit.co/videos/preview/mixkit-students-studying-together-in-a-library-4895-large.mp4"
-          type="video/mp4"
-        />
-      </video>
+      <AuthBackground isLogin={isLogin} />
 
-      {/* Gradient Overlay - Different for Login vs Signup */}
-      <div
-        className={`absolute inset-0 ${
-          isLogin
-            ? "bg-linear-to-r from-[oklch(0.5_0.18_40)]/70 via-black/50 to-[oklch(0.4_0.15_140)]/70"
-            : "bg-linear-to-r from-[oklch(0.4_0.15_140)]/70 via-black/50 to-[oklch(0.5_0.18_40)]/70"
-        }`}
-      ></div>
-
-      {/* Grain Texture Overlay */}
-      <div
-        className="absolute inset-0 opacity-[0.15] pointer-events-none"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-          backgroundRepeat: "repeat",
-        }}
-      ></div>
-
-      {/* Auth Card - Centered with Blur */}
       <div className="relative z-10 w-full max-w-md bg-white/10 backdrop-blur-2xl rounded-3xl shadow-2xl overflow-hidden p-10 border border-white/20 transition-all duration-500">
-        {/* Logo and Title */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center text-white mb-3">
             <img
@@ -214,76 +64,15 @@ const AuthScreen = ({ mode = "login", onBack, onAuthSuccess }) => {
           </h2>
         </div>
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-          {!isLogin && (
-            <div className="relative group">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <User size={18} className="text-white/70" />
-              </div>
-              <input
-                name="name"
-                type="text"
-                placeholder="Nama Lengkap"
-                onChange={handleChange}
-                value={formData.name}
-                className="w-full pl-10 pr-4 py-3 bg-white/10 backdrop-blur-md border-2 border-white/30 rounded-xl text-white text-sm placeholder-white/60 focus:outline-none focus:border-white focus:bg-white/15 transition-all"
-              />
-            </div>
-          )}
+          <AuthFormInputs
+            isLogin={isLogin}
+            formData={formData}
+            handleChange={handleChange}
+            showPassword={showPassword}
+            setShowPassword={setShowPassword}
+          />
 
-          <div className="relative group">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Mail size={18} className="text-white/70" />
-            </div>
-            <input
-              name="email"
-              type="email"
-              placeholder="Email Kampus"
-              onChange={handleChange}
-              value={formData.email}
-              className="w-full pl-10 pr-4 py-3 bg-white/10 backdrop-blur-md border-2 border-white/30 rounded-xl text-white text-sm placeholder-white/60 focus:outline-none focus:border-white focus:bg-white/15 transition-all"
-            />
-          </div>
-
-          <div className="relative group">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Lock size={18} className="text-white/70" />
-            </div>
-            <input
-              name="password"
-              type={showPassword ? "text" : "password"}
-              placeholder="Kata Sandi"
-              onChange={handleChange}
-              value={formData.password}
-              className="w-full pl-10 pr-10 py-3 bg-white/10 backdrop-blur-md border-2 border-white/30 rounded-xl text-white text-sm placeholder-white/60 focus:outline-none focus:border-white focus:bg-white/15 transition-all"
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute inset-y-0 right-0 pr-3 flex items-center text-white/70 hover:text-white"
-            >
-              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-            </button>
-          </div>
-
-          {!isLogin && (
-            <div className="relative group">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Lock size={18} className="text-white/70" />
-              </div>
-              <input
-                name="confirmPassword"
-                type="password"
-                placeholder="Konfirmasi Kata Sandi"
-                onChange={handleChange}
-                value={formData.confirmPassword}
-                className="w-full pl-10 pr-4 py-3 bg-white/10 backdrop-blur-md border-2 border-white/30 rounded-xl text-white text-sm placeholder-white/60 focus:outline-none focus:border-white focus:bg-white/15 transition-all"
-              />
-            </div>
-          )}
-
-          {/* Terms and Conditions Checkbox - Only for Signup */}
           {!isLogin && (
             <div className="flex items-start">
               <input
@@ -291,11 +80,11 @@ const AuthScreen = ({ mode = "login", onBack, onAuthSuccess }) => {
                 id="terms"
                 checked={agreedToTerms}
                 onChange={(e) => setAgreedToTerms(e.target.checked)}
-                className="mt-1 mr-2 w-4 h-4 accent-[oklch(0.4_0.15_140)]"
+                className="mt-1 mr-2 w-4 h-4 accent-[oklch(0.4_0.15_140)] cursor-pointer"
               />
               <label
                 htmlFor="terms"
-                className="text-xs text-white/90 leading-relaxed"
+                className="text-xs text-white/90 leading-relaxed cursor-pointer"
               >
                 Saya setuju dengan{" "}
                 <a
@@ -304,73 +93,38 @@ const AuthScreen = ({ mode = "login", onBack, onAuthSuccess }) => {
                 >
                   Syarat & Ketentuan
                 </a>{" "}
-                serta{" "}
-                <a
-                  href="#"
-                  className="text-[oklch(0.7_0.15_140)] underline hover:text-white"
-                >
-                  Kebijakan Privasi
-                </a>{" "}
                 Unily.
               </label>
             </div>
           )}
 
-          {/* Error Message */}
           {error && (
-            <div className="bg-red-500/20 border border-red-500/50 text-red-200 text-sm px-4 py-3 rounded-xl">
-              {error}
-            </div>
+            <ErrorBanner error={error} onDismiss={() => setError(null)} />
           )}
 
-          {/* Submit Button */}
           <button
             type="submit"
-            disabled={!isFormValid() || loading}
+            disabled={!isFormValid || loading}
             className={`w-full font-bold py-3 rounded-xl text-sm tracking-wide uppercase transition-all mt-2 shadow-lg ${
-              isFormValid() && !loading
+              isFormValid && !loading
                 ? "bg-[oklch(0.4_0.15_140)] text-white hover:bg-[oklch(0.35_0.15_140)] transform hover:-translate-y-0.5 cursor-pointer"
                 : "bg-white/20 text-white/40 cursor-not-allowed"
             }`}
           >
             {loading ? "Memproses..." : isLogin ? "MASUK" : "DAFTAR"}
           </button>
-
-          {isLogin && (
-            <div className="text-center mt-2">
-              <button
-                type="button"
-                className="text-xs text-white/80 hover:text-white transition-colors"
-              >
-                Lupa Kata Sandi?
-              </button>
-            </div>
-          )}
         </form>
 
-        {/* Switch Auth Mode Text */}
         <div className="text-center mt-6">
-          {isLogin ? (
-            <p className="text-white/80 text-sm">
-              Belum punya akun?{" "}
-              <button
-                onClick={() => setAuthTab("signup")}
-                className="text-[oklch(0.7_0.15_140)] font-semibold hover:text-white transition-colors underline"
-              >
-                Daftar
-              </button>
-            </p>
-          ) : (
-            <p className="text-white/80 text-sm">
-              Punya akun?{" "}
-              <button
-                onClick={() => setAuthTab("login")}
-                className="text-[oklch(0.7_0.15_140)] font-semibold hover:text-white transition-colors underline"
-              >
-                Masuk
-              </button>
-            </p>
-          )}
+          <p className="text-white/80 text-sm">
+            {isLogin ? "Belum punya akun? " : "Punya akun? "}
+            <button
+              onClick={() => navigate(isLogin ? "/signup" : "/login")}
+              className="text-[oklch(0.7_0.15_140)] font-semibold hover:text-white transition-colors underline ml-1"
+            >
+              {isLogin ? "Daftar" : "Masuk"}
+            </button>
+          </p>
         </div>
       </div>
     </div>

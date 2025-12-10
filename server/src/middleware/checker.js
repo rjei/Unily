@@ -1,4 +1,3 @@
-
 const checkRole = (allowedRoles) => {
   return (req, res, next) => {
     if (!req.user) {
