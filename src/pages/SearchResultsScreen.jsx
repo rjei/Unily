@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { ChevronDown, ChevronUp, SlidersHorizontal } from "lucide-react";
-import ProductCard from "../components/ProductCard";
+import ProductCard from "../components/common/ProductCard";
 
 const SearchResultsScreen = ({
   searchQuery,

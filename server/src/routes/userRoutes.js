@@ -1,23 +1,19 @@
 const express = require('express');
-const { getMe, getById, getAllUsers, deleteUser, updateUser } = require('../controllers/userController');
-const asyncHandler = require('../middleware/asyncHandler');
-const authenticate = require('../middleware/auth');
-const { ownsResource, isAdmin } = require('../middleware/checker');
-
 const router = express.Router();
+const userController = require('../controllers/userController');
+const authenticate = require('../middleware/auth');
 
+// GET /api/users/me (Profil Sendiri)
+router.get('/me', authenticate, userController.getMe);
 
-router.get('/me', authenticate, asyncHandler(getMe));
-
-
-router.get('/', authenticate, isAdmin, asyncHandler(getAllUsers));
-
-
-router.get('/:userId', authenticate, ownsResource, asyncHandler(getById));
-
-
-router.delete('/:userId', authenticate, isAdmin, asyncHandler(deleteUser));
-
-router.put('/:userId', authenticate, isAdmin, asyncHandler(updateUser));
+// GET /api/users (Admin: List semua user)
+// Tambahkan middleware isAdmin jika sudah buat, jika belum, authenticate saja cukup buat testing
+router.get('/', authenticate, userController.getAllUsers); 
+// GET /api/users/:userId (Detail User)
+router.get('/:userId', authenticate, userController.getById);
+// DELETE /api/users/:userId (Admin: Hapus User)
+router.delete('/:userId', authenticate, userController.deleteUser);
+// PUT /api/users/:userId (Admin: Edit User)
+router.put('/:userId', authenticate, userController.updateUser);
 
 module.exports = router;

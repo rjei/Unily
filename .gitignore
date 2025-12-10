@@ -1,4 +1,6 @@
+############################
 # Logs
+############################
 logs
 *.log
 npm-debug.log*
@@ -7,26 +9,73 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
+############################
+# OS / System Files
+############################
+.DS_Store
+Thumbs.db
+
+############################
+# Dependencies
+############################
+node_modules/
+
+############################
+# Build Outputs
+############################
+dist/
+dist-ssr/
+build/
 *.local
 
-# Editor directories and files
+############################
+# Editor Files
+############################
 .vscode/*
 !.vscode/extensions.json
-.idea
-.DS_Store
+.idea/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+
+############################
+# Environment Variables
+############################
+.env
+.env.*
 server/.env
-.env
-.env
-.env
+
+############################
+# Sensitive / Redundant Files
+############################
 server/data/users.json
-.env
-.env
-.env
+
+############################
+# Docker / Compose Generated
+############################
+docker-data/
+docker-volume/
+*.pid
+
+############################
+# Markdown / Docs 
+############################
+API_ENDPOINTS.md
+DOCKER_DEPLOYMENT.md
+FIXES_SUMMARY.md
+CHANGELOG.md
+
+############################
+# Vite / Cache
+############################
+.vite/
+.cache/
+
+############################
+# Misc
+############################
+*.pem
+*.key
+  

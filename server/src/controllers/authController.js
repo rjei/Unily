@@ -1,6 +1,6 @@
-const bcrypt = require('bcryptjs');
-const userStore = require('../storage/userStore');
-const { generateToken } = require('../utils/token');
+const bcrypt = require("bcryptjs");
+const userStore = require("../storage/userStore");
+const { generateToken } = require("../utils/token");
 
 const sanitizeUser = (user) => {
   if (!user) return null;
@@ -9,7 +9,7 @@ const sanitizeUser = (user) => {
     id: rest.id,
     name: rest.name,
     email: rest.email,
-    role: rest.role || 'pelanggan',
+    role: rest.role || "pelanggan",
     createdAt: rest.createdAt,
   };
 };
@@ -25,12 +25,18 @@ const createError = (statusCode, message, details) => {
 
 const signup = async (req, res) => {
   const { name, email, password } = req.body;
-  console.log('Signup attempt:', { name, email });
-  const normalizedEmail = email.toLowerCase();
+
+  // Validate required fields
+  if (!name || !email || !password) {
+    throw createError(400, "Name, email, and password are required");
+  }
+
+  console.log("Signup attempt:", { name, email });
+  const normalizedEmail = email.trim().toLowerCase();
 
   const existingUser = await userStore.findByEmail(normalizedEmail);
   if (existingUser) {
-    throw createError(409, 'Email already in use');
+    throw createError(409, "Email already in use");
   }
 
   const passwordHash = await bcrypt.hash(password, 10);
@@ -38,7 +44,7 @@ const signup = async (req, res) => {
     name: name.trim(),
     email: normalizedEmail,
     passwordHash,
-    role: 'pelanggan',
+    role: "pelanggan",
     createdAt: new Date().toISOString(),
   };
 
@@ -48,12 +54,16 @@ const signup = async (req, res) => {
 
     if (createdUser && !createdUser.role) createdUser.role = newUser.role;
   } catch (err) {
-    console.error('Error creating user in DB:', err);
-    throw createError(500, 'Failed to create user');
+    console.error("Error creating user in DB:", err);
+    throw createError(500, "Failed to create user");
   }
-  const token = generateToken({ sub: createdUser.id, email: createdUser.email, role: createdUser.role || 'pelanggan' });
+  const token = generateToken({
+    sub: createdUser.id,
+    email: createdUser.email,
+    role: createdUser.role || "pelanggan",
+  });
   res.status(201).json({
-    message: 'Account created successfully',
+    message: "Account created successfully",
     user: sanitizeUser(createdUser),
     token,
   });
@@ -62,12 +72,12 @@ const signup = async (req, res) => {
 // Signup untuk seller - role langsung 'penjual'
 const signupSeller = async (req, res) => {
   const { name, email, password } = req.body;
-  console.log('Signup Seller attempt:', { name, email });
+  console.log("Signup Seller attempt:", { name, email });
   const normalizedEmail = email.toLowerCase();
 
   const existingUser = await userStore.findByEmail(normalizedEmail);
   if (existingUser) {
-    throw createError(409, 'Email already in use');
+    throw createError(409, "Email already in use");
   }
 
   const passwordHash = await bcrypt.hash(password, 10);
@@ -75,7 +85,7 @@ const signupSeller = async (req, res) => {
     name: name.trim(),
     email: normalizedEmail,
     passwordHash,
-    role: 'penjual',
+    role: "penjual",
     createdAt: new Date().toISOString(),
   };
 
@@ -85,12 +95,16 @@ const signupSeller = async (req, res) => {
 
     if (createdUser && !createdUser.role) createdUser.role = newUser.role;
   } catch (err) {
-    console.error('Error creating user in DB:', err);
-    throw createError(500, 'Failed to create user');
+    console.error("Error creating user in DB:", err);
+    throw createError(500, "Failed to create user");
   }
-  const token = generateToken({ sub: createdUser.id, email: createdUser.email, role: createdUser.role || 'penjual' });
+  const token = generateToken({
+    sub: createdUser.id,
+    email: createdUser.email,
+    role: createdUser.role || "penjual",
+  });
   res.status(201).json({
-    message: 'Account created successfully',
+    message: "Account created successfully",
     user: sanitizeUser(createdUser),
     token,
   });
@@ -98,21 +112,36 @@ const signupSeller = async (req, res) => {
 
 const login = async (req, res) => {
   const { email, password } = req.body;
-  const normalizedEmail = email.toLowerCase();
+
+  // Validate request body
+  if (!email || !password) {
+    throw createError(400, "Email and password are required");
+  }
+
+  if (typeof email !== "string" || typeof password !== "string") {
+    throw createError(400, "Invalid input format");
+  }
+
+  const normalizedEmail = email.trim().toLowerCase();
 
   const user = await userStore.findByEmail(normalizedEmail);
   if (!user) {
-    throw createError(401, 'Invalid email or password');
+    throw createError(401, "Invalid email or password");
   }
 
   const isValidPassword = await bcrypt.compare(password, user.passwordHash);
   if (!isValidPassword) {
-    throw createError(401, 'Invalid email or password');
+    throw createError(401, "Invalid email or password");
   }
 
-  const token = generateToken({ sub: user.id, email: user.email, role: user.role || 'pelanggan' });
+  const token = generateToken({
+    sub: user.id,
+    email: user.email,
+    role: user.role || "pelanggan",
+  });
+
   res.json({
-    message: 'Logged in successfully',
+    message: "Logged in successfully",
     user: sanitizeUser(user),
     token,
   });
@@ -125,22 +154,26 @@ const loginSeller = async (req, res) => {
 
   let user = await userStore.findByEmail(normalizedEmail);
   if (!user) {
-    throw createError(401, 'Invalid email or password');
+    throw createError(401, "Invalid email or password");
   }
 
   const isValidPassword = await bcrypt.compare(password, user.passwordHash);
   if (!isValidPassword) {
-    throw createError(401, 'Invalid email or password');
+    throw createError(401, "Invalid email or password");
   }
 
   // Jika user belum penjual, upgrade ke penjual
-  if (user.role !== 'penjual') {
-    user = await userStore.updateRole(user.id, 'penjual');
+  if (user.role !== "penjual") {
+    user = await userStore.updateRole(user.id, "penjual");
   }
 
-  const token = generateToken({ sub: user.id, email: user.email, role: user.role || 'penjual' });
+  const token = generateToken({
+    sub: user.id,
+    email: user.email,
+    role: user.role || "penjual",
+  });
   res.json({
-    message: 'Logged in successfully',
+    message: "Logged in successfully",
     user: sanitizeUser(user),
     token,
   });
@@ -152,5 +185,3 @@ module.exports = {
   login,
   loginSeller,
 };
-
-

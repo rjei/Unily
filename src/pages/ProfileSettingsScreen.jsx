@@ -30,15 +30,55 @@ const ProfileSettingsScreen = ({ currentUser, onNavigate }) => {
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
                 Ubah Biodata Diri
               </h3>
-              <div className="flex items-center gap-4 mb-6">
-                <div className="w-20 h-20 rounded-full bg-linear-to-br from-green-400 to-green-600 flex items-center justify-center">
-                  <span className="text-white text-3xl font-bold">
-                    {currentUser?.name?.charAt(0) || "U"}
-                  </span>
+              <div className="flex items-start gap-4 mb-6">
+                <div className="flex flex-col items-center">
+                  <div className="w-20 h-20 rounded-full bg-linear-to-br from-green-400 to-green-600 flex items-center justify-center relative">
+                    <span className="text-white text-3xl font-bold">
+                      {currentUser?.name?.charAt(0) || "U"}
+                    </span>
+                    {currentUser?.isSeller && (
+                      <div className="absolute -top-2 -right-2 bg-green-500 rounded-full p-1.5 border-2 border-white">
+                        <svg
+                          className="w-4 h-4 text-white"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </div>
+                    )}
+                  </div>
+                  {currentUser?.isSeller && (
+                    <span className="text-xs font-semibold text-green-600 mt-2 bg-green-100 px-2.5 py-0.5 rounded-full">
+                      Seller Terverifikasi
+                    </span>
+                  )}
                 </div>
-                <button className="px-4 py-2 border border-[oklch(0.4_0.15_140)] text-[oklch(0.4_0.15_140)] rounded-lg hover:bg-[oklch(0.4_0.15_140)]/5 font-medium text-sm">
-                  Pilih Foto
-                </button>
+                <div className="flex-1">
+                  <button className="px-4 py-2 border border-[oklch(0.4_0.15_140)] text-[oklch(0.4_0.15_140)] rounded-lg hover:bg-[oklch(0.4_0.15_140)]/5 font-medium text-sm">
+                    Pilih Foto
+                  </button>
+                  {!currentUser?.isSeller && (
+                    <button
+                      onClick={() => onNavigate("seller-register")}
+                      className="mt-3 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium text-sm"
+                    >
+                      Mulai Berjualan
+                    </button>
+                  )}
+                  {currentUser?.isSeller && (
+                    <button
+                      onClick={() => onNavigate("seller-dashboard")}
+                      className="mt-3 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 font-medium text-sm"
+                    >
+                      Kelola Toko
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
 
