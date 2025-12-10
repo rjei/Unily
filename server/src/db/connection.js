@@ -1,25 +1,27 @@
 const { Pool } = require("pg");
-require("dotenv").config(); // Load .env langsung di sini
+const config = require("../config");
 
+// Pool PostgreSQL pakai config resmi
 const pool = new Pool({
-  host: process.env.DB_HOST || "localhost",
-  port: process.env.DB_PORT || 5432,
-  database: process.env.DB_NAME || "unily_db",
-  user: process.env.DB_USER || "superadmin",
-  password: process.env.DB_PASSWORD || "passwordAdmin123",
+  host: config.dbHost,
+  port: config.dbPort,
+  database: config.dbName,
+  user: config.dbUser,
+  password: config.dbPassword,
 });
 
+// Logging
 pool.on("connect", () => {
-  console.log("✅ Connected to PostgreSQL database");
+  console.log(`✅ PostgreSQL Connected → ${config.dbHost}:${config.dbPort}/${config.dbName}`);
 });
 
 pool.on("error", (err) => {
-  console.error("❌ Unexpected error on idle client", err);
+  console.error("❌ PostgreSQL client error:", err);
   process.exit(-1);
 });
 
-// Export 'query' wrapper supaya controller tinggal panggil db.query()
+// Query wrapper
 module.exports = {
   query: (text, params) => pool.query(text, params),
-  pool: pool, // Export pool asli kalau butuh transaksi complex
+  pool,
 };

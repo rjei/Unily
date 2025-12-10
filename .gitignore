@@ -60,7 +60,7 @@ docker-volume/
 *.pid
 
 ############################
-# Markdown / Docs (jika kamu mau ignore)
+# Markdown / Docs 
 ############################
 API_ENDPOINTS.md
 DOCKER_DEPLOYMENT.md
