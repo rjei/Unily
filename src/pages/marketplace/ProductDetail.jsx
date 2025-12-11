@@ -44,7 +44,8 @@ const ProductDetail = () => {
 
     // Check if favorited (from localStorage)
     const favorites = JSON.parse(
-      localStorage.getItem("unily_favorites") || "[]"
+      // MENGGANTI 'unily_favorites' menjadi 'unily_wishlist'
+      localStorage.getItem("unily_wishlist") || "[]"
     );
     setIsFavorited(favorites.includes(id));
   }, [id]);
@@ -102,20 +103,23 @@ const ProductDetail = () => {
       return;
     }
 
+    // MENGGANTI 'unily_favorites' menjadi 'unily_wishlist'
     const favorites = JSON.parse(
-      localStorage.getItem("unily_favorites") || "[]"
+      localStorage.getItem("unily_wishlist") || "[]"
     );
 
     if (isFavorited) {
       // Remove from favorites
       const updated = favorites.filter((fav) => fav !== id);
-      localStorage.setItem("unily_favorites", JSON.stringify(updated));
+      // MENGGANTI 'unily_favorites' menjadi 'unily_wishlist'
+      localStorage.setItem("unily_wishlist", JSON.stringify(updated));
       setIsFavorited(false);
       showSuccess("Berhasil", "Dihapus dari favorit");
     } else {
       // Add to favorites
       favorites.push(id);
-      localStorage.setItem("unily_favorites", JSON.stringify(favorites));
+      // MENGGANTI 'unily_favorites' menjadi 'unily_wishlist'
+      localStorage.setItem("unily_wishlist", JSON.stringify(favorites));
       setIsFavorited(true);
       showSuccess("Berhasil", "Ditambahkan ke favorit");
     }
